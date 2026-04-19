@@ -1,9 +1,23 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 
+const skinTones = [
+  { id: 'ivory', name: 'Ivory', color: '#FDEBD0', desc: 'Very fair' },
+  { id: 'porcelain', name: 'Porcelain', color: '#F5CBA7', desc: 'Fair' },
+  { id: 'sand', name: 'Sand', color: '#F0B27A', desc: 'Light' },
+  { id: 'honey', name: 'Honey', color: '#E59866', desc: 'Light medium' },
+  { id: 'caramel', name: 'Caramel', color: '#CA6F1E', desc: 'Medium' },
+  { id: 'toffee', name: 'Toffee', color: '#AF601A', desc: 'Medium tan' },
+  { id: 'sienna', name: 'Sienna', color: '#935116', desc: 'Tan' },
+  { id: 'mahogany', name: 'Mahogany', color: '#6E2C0F', desc: 'Deep brown' },
+  { id: 'coffee', name: 'Coffee', color: '#4A1A08', desc: 'Very deep' },
+  { id: 'ebony', name: 'Ebony', color: '#2C0D03', desc: 'Richest deep' },
+];
+
 const steps = [
   { id: 'gender', question: 'Who are we styling today?', options: ['Man', 'Woman', 'Non-binary / Gender-fluid'] },
   { id: 'bodyType', question: 'How would you describe your build?', options: ['Slim / Lean', 'Athletic / Toned', 'Average / Medium', 'Broad / Muscular', 'Curvy / Full-figured'] },
+  { id: 'skinTone', question: 'What is your skin tone?', options: [], isSkinTone: true },
   { id: 'budget', question: "What's your monthly style budget?", options: ['Under $50', '$50–$150', '$150–$300', '$300+'] },
   { id: 'lifestyle', question: 'What best describes your day-to-day life?', options: ['Student / Campus life', 'Office / Corporate', 'Creative / Freelance', 'Active / Outdoor', 'Social / Nightlife'] },
   { id: 'goal', question: "What's your style goal?", options: ['Look more put-together', 'Attract romantic interest', 'Command respect at work', 'Build a signature look', 'Upgrade from basics'] },
@@ -26,9 +40,7 @@ export default function Home() {
     const ios = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
     const standalone = window.navigator.standalone;
     setIsIOS(ios);
-    if (ios && !standalone) {
-      setTimeout(() => setShowBanner(true), 3000);
-    }
+    if (ios && !standalone) setTimeout(() => setShowBanner(true), 3000);
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -77,10 +89,12 @@ export default function Home() {
 
   const reset = () => { setStep(-1); setAnswers({}); setResult(null); setError(null); };
 
+  const currentStep = steps[step];
+
   return (
     <>
       <Head>
-        <title>FitCoded — Your Style Advisor</title>
+        <title>FitCoded — Style Advisor</title>
         <meta name="description" content="Get your personalized style profile in 60 seconds" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
@@ -91,15 +105,9 @@ export default function Home() {
             <div className="install-icon">👗</div>
             <div className="install-text">
               <strong>Add FitCoded to your home screen</strong>
-              {isIOS ? (
-                <span>Tap <strong>Share</strong> then <strong>Add to Home Screen</strong></span>
-              ) : (
-                <span>Install the app for quick access</span>
-              )}
+              {isIOS ? <span>Tap <strong>Share</strong> then <strong>Add to Home Screen</strong></span> : <span>Install the app for quick access</span>}
             </div>
-            {!isIOS && deferredPrompt && (
-              <button className="install-btn" onClick={handleInstall}>Install</button>
-            )}
+            {!isIOS && deferredPrompt && <button className="install-btn" onClick={handleInstall}>Install</button>}
             <button className="install-close" onClick={() => setShowBanner(false)}>✕</button>
           </div>
         </div>
@@ -110,7 +118,7 @@ export default function Home() {
           <div className="center fade">
             <div className="badge">YOUR STYLE ADVISOR</div>
             <h1 className="hero">Your Style,<br /><span className="accent">Decoded.</span></h1>
-            <p className="sub">Answer 5 questions. Get a personalized style profile with outfits you can shop right now.</p>
+            <p className="sub">Answer 6 questions. Get a personalized style profile with outfits you can shop right now.</p>
             <button className="cta" onClick={() => setStep(0)}>Get My Style Profile →</button>
             <p className="free">Free · No sign-up · 60 seconds</p>
           </div>
@@ -120,12 +128,26 @@ export default function Home() {
           <div className="wrap fade">
             <div className="progress"><div className="fill" style={{ width: `${(step / steps.length) * 100}%` }} /></div>
             <div className="step-count">{step + 1} of {steps.length}</div>
-            <h2 className="question">{steps[step].question}</h2>
-            <div className="options">
-              {steps[step].options.map(opt => (
-                <button key={opt} className="option" onClick={() => handleSelect(opt)}>{opt}</button>
-              ))}
-            </div>
+            <h2 className="question">{currentStep.question}</h2>
+
+            {currentStep.isSkinTone ? (
+              <div className="skin-grid">
+                {skinTones.map(tone => (
+                  <button key={tone.id} className="skin-btn" onClick={() => handleSelect(tone.name)}>
+                    <div className="skin-swatch" style={{ background: tone.color }} />
+                    <span className="skin-name">{tone.name}</span>
+                    <span className="skin-desc">{tone.desc}</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="options">
+                {currentStep.options.map(opt => (
+                  <button key={opt} className="option" onClick={() => handleSelect(opt)}>{opt}</button>
+                ))}
+              </div>
+            )}
+
             {step > 0 && <button className="back" onClick={() => setStep(step - 1)}>← Back</button>}
           </div>
         )}
@@ -250,6 +272,12 @@ export default function Home() {
         .options { display: flex; flex-direction: column; gap: 10px; }
         .option { background: transparent; border: 1px solid #222; color: #f0ede8; padding: 15px 18px; text-align: left; font-size: 14px; cursor: pointer; font-family: Arial, sans-serif; transition: all 0.2s; }
         .option:hover { border-color: #c9a96e; color: #c9a96e; }
+        .skin-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 8px; }
+        .skin-btn { background: transparent; border: 1px solid #222; padding: 10px 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: all 0.2s; }
+        .skin-btn:hover { border-color: #c9a96e; }
+        .skin-swatch { width: 36px; height: 36px; border-radius: 50%; }
+        .skin-name { font-size: 10px; color: #f0ede8; font-family: Arial, sans-serif; text-align: center; }
+        .skin-desc { font-size: 9px; color: #666; font-family: Arial, sans-serif; text-align: center; }
         .back { background: transparent; border: none; color: #444; font-size: 12px; cursor: pointer; margin-top: 20px; font-family: Arial, sans-serif; letter-spacing: 0.05em; }
         .spinner { width: 36px; height: 36px; border: 2px solid #1e1e1e; border-top: 2px solid #c9a96e; border-radius: 50%; margin: 0 auto 20px; animation: spin 0.8s linear infinite; }
         .loading-text { font-size: 17px; font-style: italic; margin-bottom: 8px; }
