@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 
 const steps = [
@@ -18,6 +18,32 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [showBanner, setShowBanner] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+  useEffect(() => {
+    const ios = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+    const standalone = window.navigator.standalone;
+    setIsIOS(ios);
+    if (ios && !standalone) {
+      setTimeout(() => setShowBanner(true), 3000);
+    }
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setTimeout(() => setShowBanner(true), 3000);
+    });
+  }, []);
+
+  const handleInstall = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') setShowBanner(false);
+      setDeferredPrompt(null);
+    }
+  };
 
   const handleSelect = async (value) => {
     const newAnswers = { ...answers, [steps[step].id]: value };
@@ -58,6 +84,26 @@ export default function Home() {
         <meta name="description" content="Get your personalized style profile in 60 seconds" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
+
+      {showBanner && (
+        <div className="install-banner">
+          <div className="install-content">
+            <div className="install-icon">👗</div>
+            <div className="install-text">
+              <strong>Add FitCoded to your home screen</strong>
+              {isIOS ? (
+                <span>Tap <strong>Share</strong> then <strong>Add to Home Screen</strong></span>
+              ) : (
+                <span>Install the app for quick access</span>
+              )}
+            </div>
+            {!isIOS && deferredPrompt && (
+              <button className="install-btn" onClick={handleInstall}>Install</button>
+            )}
+            <button className="install-close" onClick={() => setShowBanner(false)}>✕</button>
+          </div>
+        </div>
+      )}
 
       <div className="root">
         {step === -1 && (
@@ -177,7 +223,15 @@ export default function Home() {
         @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
         @keyframes spin { to { transform: rotate(360deg); } }
         .fade { animation: fadeIn 0.4s ease forwards; }
-        .root { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .install-banner { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; border-top: 1px solid #c9a96e; padding: 14px 16px; z-index: 1000; }
+        .install-content { display: flex; align-items: center; gap: 12px; max-width: 560px; margin: 0 auto; }
+        .install-icon { font-size: 24px; flex-shrink: 0; }
+        .install-text { flex: 1; font-family: Arial, sans-serif; font-size: 13px; display: flex; flex-direction: column; gap: 2px; }
+        .install-text strong { color: #c9a96e; }
+        .install-text span { color: #888; font-size: 11px; }
+        .install-btn { background: #c9a96e; color: #0a0a0a; border: none; padding: 8px 16px; font-size: 12px; font-family: Arial, sans-serif; cursor: pointer; font-weight: 700; flex-shrink: 0; }
+        .install-close { background: transparent; border: none; color: #555; font-size: 16px; cursor: pointer; flex-shrink: 0; padding: 4px; }
+        .root { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; padding-bottom: 80px; }
         .center { max-width: 480px; width: 100%; text-align: center; padding: 40px 0; }
         .wrap { max-width: 500px; width: 100%; }
         .results { max-width: 560px; width: 100%; padding-bottom: 60px; }
