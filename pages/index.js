@@ -108,7 +108,7 @@ export default function Home() {
       <div className="root">
         {step === -1 && (
           <div className="center fade">
-            <div className="badge">AI STYLE ADVISOR</div>
+            <div className="badge">YOUR STYLE ADVISOR</div>
             <h1 className="hero">Your Style,<br /><span className="accent">Decoded.</span></h1>
             <p className="sub">Answer 5 questions. Get a personalized style profile with outfits you can shop right now.</p>
             <button className="cta" onClick={() => setStep(0)}>Get My Style Profile →</button>
