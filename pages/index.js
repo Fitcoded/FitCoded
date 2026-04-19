@@ -80,7 +80,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>FitCoded — AI Style Advisor</title>
+        <title>FitCoded — Your Style Advisor</title>
         <meta name="description" content="Get your personalized style profile in 60 seconds" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
