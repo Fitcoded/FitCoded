@@ -100,7 +100,24 @@ export default function Home() {
       </Head>
 
       {showBanner && (
-        <div className="install-banner">
+        <div style={{ width: 40, height: 40, position: 'relative', flexShrink: 0 }}>
+  <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="40" height="40" overflow="visible">
+    <style>{`
+      .fc-ring-pulse { fill: none; stroke: #C9A84C; stroke-width: 1; opacity: 0; animation: fcPulse 2.5s ease 2.5s infinite; }
+      .fc-ring { fill: none; stroke: #C9A84C; stroke-width: 2.5; stroke-dasharray: 502; stroke-dashoffset: 502; animation: fcDraw 1.2s cubic-bezier(0.4,0,0.2,1) 0.2s forwards; }
+      .fc-f { fill: #C9A84C; font-family: Georgia, serif; font-size: 52px; text-anchor: middle; dominant-baseline: central; opacity: 0; animation: fcFadeF 0.5s ease 1.3s forwards; }
+      .fc-c { fill: #C9A84C; font-family: Georgia, serif; font-size: 52px; text-anchor: middle; dominant-baseline: central; opacity: 0; animation: fcFadeC 0.5s ease 1.9s forwards; }
+      @keyframes fcDraw { to { stroke-dashoffset: 0; } }
+      @keyframes fcFadeF { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+      @keyframes fcFadeC { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }
+      @keyframes fcPulse { 0% { opacity: 0; r: 80; } 30% { opacity: 0.25; } 100% { opacity: 0; r: 100; } }
+    `}</style>
+    <circle className="fc-ring-pulse" cx="100" cy="100" r="80" />
+    <circle className="fc-ring" cx="100" cy="100" r="80" />
+    <text className="fc-f" x="82" y="102">F</text>
+    <text className="fc-c" x="118" y="102">C</text>
+  </svg>
+</div>
           <div className="install-content">
             <div className="install-icon">👗</div>
             <div className="install-text">
