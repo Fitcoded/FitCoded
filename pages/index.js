@@ -9,7 +9,7 @@ const steps = [
   { id: 'goal', question: "What's your style goal?", options: ['Look more put-together', 'Attract romantic interest', 'Command respect at work', 'Build a signature look', 'Upgrade from basics'] },
 ];
 
-const AMAZON = 'https://www.amazon.com/s?k=';
+const AMAZON = 'https://www.amazon.com/s?tag=fitcoded-20&k=';
 const ASOS = 'https://www.asos.com/search/?q=';
 
 export default function Home() {
