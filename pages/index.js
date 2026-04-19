@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'; 
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 
 const skinTones = [
@@ -25,6 +25,27 @@ const steps = [
 
 const AMAZON = 'https://www.amazon.com/s?tag=fitcoded-20&k=';
 const ASOS = 'https://www.asos.com/search/?q=';
+
+const FCLogo = () => (
+  <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="40" height="40" overflow="visible">
+    <defs>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .fc-rp{fill:none;stroke:#C9A84C;stroke-width:1;opacity:0;animation:fcP 2.5s ease 2.5s infinite}
+        .fc-r{fill:none;stroke:#C9A84C;stroke-width:2.5;stroke-dasharray:502;stroke-dashoffset:502;animation:fcD 1.2s cubic-bezier(0.4,0,0.2,1) 0.2s forwards}
+        .fc-f{fill:#C9A84C;font-family:Georgia,serif;font-size:52px;text-anchor:middle;dominant-baseline:central;opacity:0;animation:fcF 0.5s ease 1.3s forwards}
+        .fc-c{fill:#C9A84C;font-family:Georgia,serif;font-size:52px;text-anchor:middle;dominant-baseline:central;opacity:0;animation:fcC 0.5s ease 1.9s forwards}
+        @keyframes fcD{to{stroke-dashoffset:0}}
+        @keyframes fcF{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+        @keyframes fcC{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
+        @keyframes fcP{0%{opacity:0}30%{opacity:0.25}100%{opacity:0}}
+      ` }} />
+    </defs>
+    <circle className="fc-rp" cx="100" cy="100" r="80" />
+    <circle className="fc-r" cx="100" cy="100" r="80" />
+    <text className="fc-f" x="82" y="102">F</text>
+    <text className="fc-c" x="118" y="102">C</text>
+  </svg>
+);
 
 export default function Home() {
   const [step, setStep] = useState(-1);
@@ -100,26 +121,9 @@ export default function Home() {
       </Head>
 
       {showBanner && (
-        <div style={{ width: 40, height: 40, position: 'relative', flexShrink: 0 }}>
-  <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="40" height="40" overflow="visible">
-    <style>{`
-      .fc-ring-pulse { fill: none; stroke: #C9A84C; stroke-width: 1; opacity: 0; animation: fcPulse 2.5s ease 2.5s infinite; }
-      .fc-ring { fill: none; stroke: #C9A84C; stroke-width: 2.5; stroke-dasharray: 502; stroke-dashoffset: 502; animation: fcDraw 1.2s cubic-bezier(0.4,0,0.2,1) 0.2s forwards; }
-      .fc-f { fill: #C9A84C; font-family: Georgia, serif; font-size: 52px; text-anchor: middle; dominant-baseline: central; opacity: 0; animation: fcFadeF 0.5s ease 1.3s forwards; }
-      .fc-c { fill: #C9A84C; font-family: Georgia, serif; font-size: 52px; text-anchor: middle; dominant-baseline: central; opacity: 0; animation: fcFadeC 0.5s ease 1.9s forwards; }
-      @keyframes fcDraw { to { stroke-dashoffset: 0; } }
-      @keyframes fcFadeF { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
-      @keyframes fcFadeC { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }
-      @keyframes fcPulse { 0% { opacity: 0; r: 80; } 30% { opacity: 0.25; } 100% { opacity: 0; r: 100; } }
-    `}</style>
-    <circle className="fc-ring-pulse" cx="100" cy="100" r="80" />
-    <circle className="fc-ring" cx="100" cy="100" r="80" />
-    <text className="fc-f" x="82" y="102">F</text>
-    <text className="fc-c" x="118" y="102">C</text>
-  </svg>
-</div>
+        <div className="install-banner">
           <div className="install-content">
-            <div className="install-icon">👗</div>
+            <div style={{ flexShrink: 0 }}><FCLogo /></div>
             <div className="install-text">
               <strong>Add FitCoded to your home screen</strong>
               {isIOS ? <span>Tap <strong>Share</strong> then <strong>Add to Home Screen</strong></span> : <span>Install the app for quick access</span>}
@@ -264,7 +268,6 @@ export default function Home() {
         .fade { animation: fadeIn 0.4s ease forwards; }
         .install-banner { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; border-top: 1px solid #c9a96e; padding: 14px 16px; z-index: 1000; }
         .install-content { display: flex; align-items: center; gap: 12px; max-width: 560px; margin: 0 auto; }
-        .install-icon { font-size: 24px; flex-shrink: 0; }
         .install-text { flex: 1; font-family: Arial, sans-serif; font-size: 13px; display: flex; flex-direction: column; gap: 2px; }
         .install-text strong { color: #c9a96e; }
         .install-text span { color: #888; font-size: 11px; }
