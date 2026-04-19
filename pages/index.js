@@ -1,0 +1,235 @@
+import { useState } from 'react';
+import Head from 'next/head';
+
+const steps = [
+  { id: 'gender', question: 'Who are we styling today?', options: ['Man', 'Woman', 'Non-binary / Gender-fluid'] },
+  { id: 'bodyType', question: 'How would you describe your build?', options: ['Slim / Lean', 'Athletic / Toned', 'Average / Medium', 'Broad / Muscular', 'Curvy / Full-figured'] },
+  { id: 'budget', question: "What's your monthly style budget?", options: ['Under $50', '$50–$150', '$150–$300', '$300+'] },
+  { id: 'lifestyle', question: 'What best describes your day-to-day life?', options: ['Student / Campus life', 'Office / Corporate', 'Creative / Freelance', 'Active / Outdoor', 'Social / Nightlife'] },
+  { id: 'goal', question: "What's your style goal?", options: ['Look more put-together', 'Attract romantic interest', 'Command respect at work', 'Build a signature look', 'Upgrade from basics'] },
+];
+
+const AMAZON = 'https://www.amazon.com/s?k=';
+const ASOS = 'https://www.asos.com/search/?q=';
+
+export default function Home() {
+  const [step, setStep] = useState(-1);
+  const [answers, setAnswers] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+
+  const handleSelect = async (value) => {
+    const newAnswers = { ...answers, [steps[step].id]: value };
+    setAnswers(newAnswers);
+    if (step < steps.length - 1) {
+      setStep(step + 1);
+    } else {
+      setStep(steps.length);
+      await generate(newAnswers);
+    }
+  };
+
+  const generate = async (a) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/style', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(a),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setResult(data);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const reset = () => { setStep(-1); setAnswers({}); setResult(null); setError(null); };
+
+  return (
+    <>
+      <Head>
+        <title>FitCoded — AI Style Advisor</title>
+        <meta name="description" content="Get your personalized style profile in 60 seconds" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+
+      <div className="root">
+        {step === -1 && (
+          <div className="center fade">
+            <div className="badge">AI STYLE ADVISOR</div>
+            <h1 className="hero">Your Style,<br /><span className="accent">Decoded.</span></h1>
+            <p className="sub">Answer 5 questions. Get a personalized style profile with outfits you can shop right now.</p>
+            <button className="cta" onClick={() => setStep(0)}>Get My Style Profile →</button>
+            <p className="free">Free · No sign-up · 60 seconds</p>
+          </div>
+        )}
+
+        {step >= 0 && step < steps.length && (
+          <div className="wrap fade">
+            <div className="progress"><div className="fill" style={{ width: `${(step / steps.length) * 100}%` }} /></div>
+            <div className="step-count">{step + 1} of {steps.length}</div>
+            <h2 className="question">{steps[step].question}</h2>
+            <div className="options">
+              {steps[step].options.map(opt => (
+                <button key={opt} className="option" onClick={() => handleSelect(opt)}>{opt}</button>
+              ))}
+            </div>
+            {step > 0 && <button className="back" onClick={() => setStep(step - 1)}>← Back</button>}
+          </div>
+        )}
+
+        {step === steps.length && loading && (
+          <div className="center fade">
+            <div className="spinner" />
+            <p className="loading-text">Decoding your style DNA...</p>
+            <p className="loading-sub">Building your personalized profile</p>
+          </div>
+        )}
+
+        {step === steps.length && !loading && error && (
+          <div className="center fade">
+            <p className="error">{error}</p>
+            <button className="cta" onClick={reset}>Try Again</button>
+          </div>
+        )}
+
+        {result && !loading && (
+          <div className="results fade">
+            <div className="res-header">
+              <div className="badge">YOUR STYLE PROFILE</div>
+              <div className="persona">{result.stylePersonality}</div>
+            </div>
+
+            <div className="card">
+              <div className="card-title">YOUR COLOR PALETTE</div>
+              <div className="palette">
+                {result.colorPalette?.map((c, i) => (
+                  <div key={i} className="swatch-wrap">
+                    <div className="swatch" style={{ background: c }} />
+                    <span className="color-label">{c}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="color-desc">{result.colorDescription}</p>
+            </div>
+
+            <div className="sec-title">YOUR OUTFITS</div>
+            {result.outfits?.map((outfit, i) => (
+              <div key={i} className="card">
+                <div className="outfit-top">
+                  <span className="occasion">{outfit.occasion?.toUpperCase()}</span>
+                  <span className="outfit-name">{outfit.outfitName}</span>
+                </div>
+                {outfit.pieces?.map((p, j) => (
+                  <div key={j} className="piece">
+                    <div className="piece-info">
+                      <span className="piece-item">{p.item}</span>
+                      <span className="piece-tip">{p.tip}</span>
+                    </div>
+                    <div className="shop-row">
+                      <a href={AMAZON + encodeURIComponent(p.search)} target="_blank" rel="noopener noreferrer" className="shop-a">Amazon</a>
+                      <a href={ASOS + encodeURIComponent(p.search)} target="_blank" rel="noopener noreferrer" className="shop-b">ASOS</a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
+
+            <div className="card">
+              <div className="card-title">YOUR STYLE RULES</div>
+              {result.styleRules?.map((r, i) => (
+                <div key={i} className="rule-row">
+                  <span className="rule-num">{i + 1}</span>
+                  <span className="rule-txt">{r}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="card avoid-card">
+              <div className="card-title">WHAT TO AVOID</div>
+              {result.avoid?.map((a, i) => (
+                <div key={i} className="rule-row">
+                  <span className="avoid-x">✕</span>
+                  <span className="rule-txt">{a}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="qw-card">
+              <div className="qw-label">⚡ QUICK WIN</div>
+              <p className="qw-txt">{result.quickWin}</p>
+            </div>
+
+            <button className="cta full" onClick={reset}>Start Over</button>
+          </div>
+        )}
+      </div>
+
+      <style jsx global>{`
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #0a0a0a; color: #f0ede8; font-family: Georgia, serif; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .fade { animation: fadeIn 0.4s ease forwards; }
+        .root { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .center { max-width: 480px; width: 100%; text-align: center; padding: 40px 0; }
+        .wrap { max-width: 500px; width: 100%; }
+        .results { max-width: 560px; width: 100%; padding-bottom: 60px; }
+        .badge { display: inline-block; font-size: 10px; letter-spacing: 0.25em; color: #c9a96e; border: 1px solid #c9a96e; padding: 4px 12px; margin-bottom: 24px; font-family: Arial, sans-serif; }
+        .hero { font-size: clamp(40px, 10vw, 68px); font-weight: 400; line-height: 1.05; margin-bottom: 20px; letter-spacing: -0.02em; }
+        .accent { color: #c9a96e; font-style: italic; }
+        .sub { font-size: 15px; color: #888; line-height: 1.7; margin-bottom: 36px; font-family: Arial, sans-serif; }
+        .cta { background: #c9a96e; color: #0a0a0a; border: none; padding: 15px 32px; font-size: 13px; letter-spacing: 0.1em; font-family: Arial, sans-serif; cursor: pointer; font-weight: 700; transition: opacity 0.2s; }
+        .cta:hover { opacity: 0.85; }
+        .cta.full { width: 100%; padding: 18px; font-size: 12px; letter-spacing: 0.15em; }
+        .free { margin-top: 14px; font-size: 11px; color: #444; font-family: Arial, sans-serif; letter-spacing: 0.05em; }
+        .progress { width: 100%; height: 2px; background: #1e1e1e; margin-bottom: 28px; }
+        .fill { height: 100%; background: #c9a96e; transition: width 0.3s ease; }
+        .step-count { font-size: 11px; letter-spacing: 0.2em; color: #444; font-family: Arial, sans-serif; margin-bottom: 14px; }
+        .question { font-size: clamp(20px, 5vw, 28px); font-weight: 400; margin-bottom: 28px; line-height: 1.3; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        .option { background: transparent; border: 1px solid #222; color: #f0ede8; padding: 15px 18px; text-align: left; font-size: 14px; cursor: pointer; font-family: Arial, sans-serif; transition: all 0.2s; }
+        .option:hover { border-color: #c9a96e; color: #c9a96e; }
+        .back { background: transparent; border: none; color: #444; font-size: 12px; cursor: pointer; margin-top: 20px; font-family: Arial, sans-serif; letter-spacing: 0.05em; }
+        .spinner { width: 36px; height: 36px; border: 2px solid #1e1e1e; border-top: 2px solid #c9a96e; border-radius: 50%; margin: 0 auto 20px; animation: spin 0.8s linear infinite; }
+        .loading-text { font-size: 17px; font-style: italic; margin-bottom: 8px; }
+        .loading-sub { font-size: 12px; color: #555; font-family: Arial, sans-serif; letter-spacing: 0.05em; }
+        .error { color: #e07070; font-family: Arial, sans-serif; font-size: 13px; margin-bottom: 20px; line-height: 1.6; }
+        .res-header { text-align: center; margin-bottom: 36px; }
+        .persona { font-size: clamp(26px, 6vw, 44px); font-weight: 400; font-style: italic; color: #c9a96e; margin-top: 14px; }
+        .card { border: 1px solid #1e1e1e; padding: 22px; margin-bottom: 14px; background: #0f0f0f; }
+        .card-title { font-size: 10px; letter-spacing: 0.2em; color: #c9a96e; font-family: Arial, sans-serif; margin-bottom: 14px; font-weight: 400; }
+        .palette { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+        .swatch-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .swatch { width: 40px; height: 40px; }
+        .color-label { font-size: 10px; color: #555; font-family: Arial, sans-serif; }
+        .color-desc { font-size: 13px; color: #777; font-family: Arial, sans-serif; line-height: 1.6; }
+        .sec-title { font-size: 10px; letter-spacing: 0.2em; color: #444; font-family: Arial, sans-serif; margin-bottom: 10px; font-weight: 400; margin-top: 6px; }
+        .outfit-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+        .occasion { font-size: 10px; letter-spacing: 0.2em; color: #c9a96e; font-family: Arial, sans-serif; }
+        .outfit-name { font-size: 15px; font-style: italic; }
+        .piece { border-top: 1px solid #1a1a1a; padding-top: 12px; margin-top: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .piece-info { flex: 1; min-width: 130px; }
+        .piece-item { font-size: 14px; font-family: Arial, sans-serif; display: block; margin-bottom: 3px; }
+        .piece-tip { font-size: 11px; color: #555; font-family: Arial, sans-serif; line-height: 1.5; display: block; }
+        .shop-row { display: flex; gap: 6px; }
+        .shop-a { background: #c9a96e; color: #0a0a0a; padding: 5px 10px; font-size: 10px; font-family: Arial, sans-serif; text-decoration: none; font-weight: 700; letter-spacing: 0.05em; }
+        .shop-b { border: 1px solid #c9a96e; color: #c9a96e; padding: 5px 10px; font-size: 10px; font-family: Arial, sans-serif; text-decoration: none; letter-spacing: 0.05em; }
+        .rule-row { display: flex; gap: 10px; margin-bottom: 9px; align-items: flex-start; }
+        .rule-num { color: #c9a96e; font-size: 12px; font-style: italic; width: 16px; flex-shrink: 0; }
+        .rule-txt { font-size: 13px; font-family: Arial, sans-serif; color: #bbb; line-height: 1.6; }
+        .avoid-card { border-color: #1a1010; background: #0d0b0b; }
+        .avoid-x { color: #6a2a2a; font-size: 11px; width: 16px; flex-shrink: 0; padding-top: 2px; }
+        .qw-card { background: #c9a96e; padding: 22px; margin-bottom: 28px; }
+        .qw-label { font-size: 10px; letter-spacing: 0.2em; color: #0a0a0a; font-family: Arial, sans-serif; margin-bottom: 8px; font-weight: 700; }
+        .qw-txt { font-size: 14px; color: #0a0a0a; font-family: Arial, sans-serif; line-height: 1.6; }
+      `}</style>
+    </>
+  );
+}
