@@ -164,14 +164,14 @@ MANDATORY RULES FOR EVERY RESPONSE:
 4. The quick win must be the single highest-impact styling change for ${skinTone} skin specifically
 5. Outfit names must feel editorial and be specific to this skin tone's energy
 6. stylePersonality must reflect both their lifestyle AND the visual energy of ${skinTone} skin
+7. NEVER include hex codes in item names — use plain color words only (e.g. "Burgundy tailored blazer" not "#8B3A3A burgundy tailored blazer")
 
 Return ONLY a raw JSON object with NO markdown, NO backticks, NO explanation:
-{"stylePersonality":"2-3 word archetype","colorPalette":${JSON.stringify(selectedColors)},"colorDescription":"${colorDescription}","outfits":[{"occasion":"name","outfitName":"editorial name specific to ${skinTone} energy","pieces":[{"item":"specific clothing item with color","tip":"explains exactly why this works with ${skinTone} skin and what it does visually","search":"specific amazon search term"}]}],"styleRules":["rule specific to ${skinTone} skin 1","rule 2","rule 3"],"avoid":["item — why it does not work for ${skinTone} skin undertones","second item"],"quickWin":"highest-impact single tip for ${skinTone} skin tone specifically"}
+{"stylePersonality":"2-3 word archetype","colorPalette":${JSON.stringify(selectedColors)},"colorDescription":"${colorDescription}","outfits":[{"occasion":"name","outfitName":"editorial name specific to ${skinTone} energy","pieces":[{"item":"clothing item name only using plain color words","tip":"explains exactly why this works with ${skinTone} skin and what it does visually","search":"specific amazon search term"}]}],"styleRules":["rule specific to ${skinTone} skin 1","rule 2","rule 3"],"avoid":["item — why it does not work for ${skinTone} skin undertones","second item"],"quickWin":"highest-impact single tip for ${skinTone} skin tone specifically"}
 
 Include 3 outfits with 3 pieces each.`;
 
   try {
-    // Set headers for streaming
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
@@ -192,7 +192,6 @@ Include 3 outfits with 3 pieces each.`;
     });
 
     let fullText = '';
-
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
 
@@ -211,7 +210,6 @@ Include 3 outfits with 3 pieces each.`;
             const parsed = JSON.parse(data);
             if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
               fullText += parsed.delta.text;
-              // Send progress updates to frontend
               res.write(`data: ${JSON.stringify({ type: 'chunk', text: parsed.delta.text })}\n\n`);
             }
           } catch (e) {
@@ -221,7 +219,6 @@ Include 3 outfits with 3 pieces each.`;
       }
     }
 
-    // Parse full response and enforce locked colors
     const start = fullText.indexOf('{');
     const end = fullText.lastIndexOf('}');
     if (start !== -1 && end !== -1) {
