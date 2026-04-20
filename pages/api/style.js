@@ -96,16 +96,44 @@ export default async function handler(req, res) {
   const vibe = getLifestyleVibe(lifestyle, goal);
   const selectedColors = toneBase[vibe] || toneBase.neutral;
 
+  const isDeepTone = ['mahogany', 'deep brown', 'coffee', 'very deep', 'ebony', 'richest deep'].some(t =>
+    (skinTone || '').toLowerCase().includes(t)
+  );
+  const isLightTone = ['ivory', 'porcelain', 'sand', 'fair', 'honey', 'light medium'].some(t =>
+    (skinTone || '').toLowerCase().includes(t)
+  );
+
   const colorDescriptions = {
-    cool: `a polished mix of deep anchor tones, mid tones and a striking accent — all carefully chosen to complement ${skinTone} skin in professional settings`,
-    bold: `high-impact jewel tones and vivid statement colors that make ${skinTone} skin radiate and command attention in any room`,
+    cool: `a polished mix of deep anchor tones, refined mid-tones, and a striking accent — engineered to complement ${skinTone} skin with authority in professional settings`,
+    bold: isDeepTone
+      ? `rich jewel tones with depth and luminosity — these specific shades create stunning contrast and make ${skinTone} skin glow with commanding presence`
+      : `high-impact statement colors carefully chosen to make ${skinTone} skin radiate confidence and command attention`,
     warm: `rich warm earth tones with depth and contrast that harmonize beautifully with ${skinTone} skin for an effortlessly elevated look`,
-    neutral: `a versatile palette with depth, softness and an accent tone — carefully balanced to flatter ${skinTone} skin across every occasion`,
+    neutral: `a versatile palette with depth, softness and a precise accent tone — carefully balanced to flatter ${skinTone} skin across every occasion`,
   };
 
   const colorDescription = colorDescriptions[vibe] || colorDescriptions.neutral;
 
-  const prompt = `You are a world-class personal style advisor. Create a deeply personalized style guide.
+  const deepToneGuidance = isDeepTone
+    ? `DEEP SKIN TONE RULES (${skinTone}):
+- Prioritize contrast — deep, rich skin creates a stunning canvas for both bold and light colors
+- Avoid recommending colors that are too close to the skin tone (muddy browns, ashy greys)
+- White, cream, and off-white create striking luminous contrast — always a power move
+- Gold, burgundy, deep purple, and forest green are signature colors for deep skin
+- Never default to "earth tones only" — deep skin tones can own the full spectrum
+- Describe how each color specifically pops, glows, or contrasts against ${skinTone} skin`
+    : '';
+
+  const lightToneGuidance = isLightTone
+    ? `LIGHT SKIN TONE RULES (${skinTone}):
+- Always include at least one deep anchor color (navy, forest green, burgundy, charcoal)
+- Never generate a monochromatic or single-family palette — variety is essential
+- Warm accents (rust, camel, terracotta) add depth and prevent a washed-out look
+- Avoid recommending colors so pale they blend with the skin tone
+- Describe how each color creates definition and contrast against ${skinTone} skin`
+    : '';
+
+  const prompt = `You are a world-class personal style advisor specializing in skin-tone-aware fashion. Every single piece of advice must be specifically tailored to ${skinTone} skin tone. Never give generic advice that could apply to anyone.
 
 User Profile:
 - Gender: ${gender}
@@ -116,15 +144,31 @@ User Profile:
 - Style Goal: ${goal}
 - Color Vibe: ${vibe}
 
-The color palette has been specifically selected for ${skinTone} skin tone combined with a ${vibe} lifestyle vibe.
-Colors to use: ${JSON.stringify(selectedColors)}
+The following color palette has been pre-selected and is LOCKED. Do not suggest or substitute different colors:
+${JSON.stringify(selectedColors)}
 
-These colors include a dark anchor, mid tones, and an accent — guide the person to use them as a capsule wardrobe, not all at once.
+PALETTE USAGE RULES — follow exactly:
+- Treat these 4 colors as a capsule wardrobe
+- Use 1 statement color per outfit maximum
+- The lightest color is the base/neutral
+- The deepest color is the anchor piece
+- Never combine more than 2 palette colors in a single outfit
+
+${deepToneGuidance}
+${lightToneGuidance}
+
+MANDATORY RULES FOR EVERY RESPONSE:
+1. Every outfit piece tip MUST name ${skinTone} skin specifically and explain the contrast or harmony it creates
+2. Avoid generic advice — if it could apply to any skin tone, rewrite it until it cannot
+3. The avoid list must explain exactly why each item clashes with ${skinTone} skin undertones
+4. The quick win must be the single highest-impact styling change for ${skinTone} skin specifically
+5. Outfit names must feel editorial and be specific to this skin tone's energy
+6. stylePersonality must reflect both their lifestyle AND the visual energy of ${skinTone} skin
 
 Return ONLY a raw JSON object with NO markdown, NO backticks, NO explanation:
-{"stylePersonality":"2-3 word archetype","colorPalette":${JSON.stringify(selectedColors)},"colorDescription":"${colorDescription}","outfits":[{"occasion":"name","outfitName":"name","pieces":[{"item":"specific clothing item in one of the palette colors","tip":"practical styling tip mentioning how to use the colors","search":"specific amazon search term"}]}],"styleRules":["specific rule 1","specific rule 2","specific rule 3"],"avoid":["specific thing 1","specific thing 2"],"quickWin":"one powerful actionable tip they can do today"}
+{"stylePersonality":"2-3 word archetype","colorPalette":${JSON.stringify(selectedColors)},"colorDescription":"${colorDescription}","outfits":[{"occasion":"name","outfitName":"editorial name specific to ${skinTone} energy","pieces":[{"item":"specific clothing item with color","tip":"explains exactly why this works with ${skinTone} skin and what it does visually","search":"specific amazon search term"}]}],"styleRules":["rule specific to ${skinTone} skin 1","rule 2","rule 3"],"avoid":["item — why it does not work for ${skinTone} skin undertones","second item"],"quickWin":"highest-impact single tip for ${skinTone} skin tone specifically"}
 
-Include 3 outfits with 3 pieces each. Each outfit should use 1-2 colors from the palette as statement pieces with neutrals.`;
+Include 3 outfits with 3 pieces each.`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -162,7 +206,6 @@ Include 3 outfits with 3 pieces each. Each outfit should use 1-2 colors from the
     parsed.colorDescription = colorDescription;
 
     return res.status(200).json(parsed);
-
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
