@@ -59,17 +59,17 @@ export default async function handler(req, res) {
       };
     } else if (t === 'coffee' || t === 'very deep') {
       return {
-        warm: ['#FF6B35', '#FFD700', '#00CED1', '#FF1493'],
-        cool: ['#4169E1', '#00CED1', '#FFD700', '#FF1493'],
-        bold: ['#FFD700', '#FF0000', '#00FF7F', '#FF1493'],
-        neutral: ['#FF6B35', '#FFD700', '#00CED1', '#C0C0C0'],
+        warm: ['#B8860B', '#8B0000', '#2E5E4E', '#C19A6B'],
+        cool: ['#1C3A6E', '#4B0082', '#C9A84C', '#2E5E4E'],
+        bold: ['#C9A84C', '#4B0082', '#8B0000', '#2E5E4E'],
+        neutral: ['#4A3728', '#8B6344', '#C9A84C', '#1C3A6E'],
       };
     } else if (t === 'ebony' || t === 'richest deep') {
       return {
-        warm: ['#FFD700', '#FF4500', '#FFFFFF', '#FF1493'],
-        cool: ['#FFFFFF', '#7B2FBE', '#FFD700', '#00CED1'],
-        bold: ['#FFFFFF', '#FFD700', '#FF0000', '#7B2FBE'],
-        neutral: ['#FFD700', '#FFFFFF', '#C0C0C0', '#FF4500'],
+        warm: ['#B8860B', '#8B0000', '#F5F5F5', '#2E5E4E'],
+        cool: ['#F5F5F5', '#4B0082', '#B8860B', '#1C3A6E'],
+        bold: ['#F5F5F5', '#B8860B', '#6B0F8B', '#8B0000'],
+        neutral: ['#F5F5F5', '#B8860B', '#C0C0C0', '#4A3728'],
       };
     }
 
