@@ -7,85 +7,77 @@ export default async function handler(req, res) {
 
   const getSkinToneBase = (tone) => {
     const t = (tone || '').toLowerCase();
+
     if (t === 'ivory' || t === 'porcelain') {
       return {
-        warm: ['#E8C5D0', '#F5B8C4', '#F5F0E8', '#C4A0B0'],
-        cool: ['#B8D4E8', '#8BA7C7', '#E8EFF5', '#6B8FB5'],
+        warm: ['#C4A0B0', '#E8C5D0', '#F5F0E8', '#8B6B77'],
+        cool: ['#1A3A5C', '#B8D4E8', '#F5F0E8', '#8B2246'],
         bold: ['#7B2D8B', '#1A5276', '#C0392B', '#F5F0E8'],
-        neutral: ['#BDC3C7', '#95A5A6', '#F5F0E8', '#7F8C8D'],
-        undertone: 'cool',
+        neutral: ['#6B7A8D', '#BDC3C7', '#F5F0E8', '#8B4557'],
       };
     } else if (t === 'sand' || t === 'fair') {
       return {
-        warm: ['#F4A460', '#DEB887', '#F5DEB3', '#CD853F'],
-        cool: ['#87CEEB', '#B0C4DE', '#F0F8FF', '#6495ED'],
-        bold: ['#FF6B35', '#E74C3C', '#8E44AD', '#F5DEB3'],
-        neutral: ['#D2B48C', '#C4A882', '#F5F5DC', '#A0836B'],
-        undertone: 'warm',
+        warm: ['#CD853F', '#F4A460', '#F5DEB3', '#8B5E3C'],
+        cool: ['#4682B4', '#87CEEB', '#F0F8FF', '#8B2252'],
+        bold: ['#C0392B', '#FF6B35', '#8E44AD', '#F5DEB3'],
+        neutral: ['#A0836B', '#D2B48C', '#F5F5DC', '#6B4C3B'],
       };
     } else if (t === 'honey' || t === 'light medium') {
       return {
-        warm: ['#E8956D', '#D4845A', '#F0C080', '#C17A3C'],
-        cool: ['#5D8AA8', '#4682B4', '#B0C4DE', '#E8956D'],
-        bold: ['#C0392B', '#8E44AD', '#D35400', '#F0C080'],
-        neutral: ['#C19A6B', '#A0785A', '#F5DEB3', '#8B6344'],
-        undertone: 'warm',
+        warm: ['#C17A3C', '#E8956D', '#F0C080', '#8B5A2B'],
+        cool: ['#2E6DA4', '#5D8AA8', '#E8EEF4', '#8B3A3A'],
+        bold: ['#8E44AD', '#C0392B', '#D35400', '#F0C080'],
+        neutral: ['#8B6344', '#C19A6B', '#F5DEB3', '#5C4033'],
       };
     } else if (t === 'caramel' || t === 'medium') {
       return {
-        warm: ['#D4A017', '#C17A3C', '#DAA520', '#8B4513'],
-        cool: ['#1F618D', '#2980B9', '#D4A017', '#145A74'],
-        bold: ['#E74C3C', '#8E44AD', '#D4A017', '#145A74'],
-        neutral: ['#A0785A', '#8B6344', '#C19A6B', '#6B4C3B'],
-        undertone: 'warm',
+        warm: ['#8B4513', '#C17A3C', '#DAA520', '#5C2E00'],
+        cool: ['#145A74', '#2980B9', '#D4EAF7', '#8B2500'],
+        bold: ['#8E44AD', '#E74C3C', '#D4A017', '#1A5276'],
+        neutral: ['#6B4C3B', '#A0785A', '#D4B896', '#3D2B1F'],
       };
     } else if (t === 'toffee' || t === 'medium tan') {
       return {
-        warm: ['#8B2500', '#A0522D', '#D2691E', '#CD6600'],
-        cool: ['#1A5276', '#154360', '#8B2500', '#C0392B'],
-        bold: ['#FF5733', '#C0392B', '#8B2500', '#1A5276'],
-        neutral: ['#7B5E57', '#6B4C3B', '#A0785A', '#8B6344'],
-        undertone: 'warm',
+        warm: ['#8B2500', '#CD6600', '#D2691E', '#5C1A00'],
+        cool: ['#154360', '#C0392B', '#1A5276', '#8B0000'],
+        bold: ['#C0392B', '#FF5733', '#1A5276', '#8B2500'],
+        neutral: ['#6B4C3B', '#7B5E57', '#A08070', '#4A3728'],
       };
     } else if (t === 'sienna' || t === 'tan') {
       return {
-        warm: ['#8B0000', '#A52A2A', '#CD5C5C', '#DAA520'],
-        cool: ['#4B0082', '#1C3A6E', '#006400', '#8B0000'],
-        bold: ['#4B0082', '#8B0000', '#006400', '#DAA520'],
-        neutral: ['#5C4033', '#4A3728', '#7B5E57', '#6B4C3B'],
-        undertone: 'neutral',
+        warm: ['#8B0000', '#DAA520', '#CD5C5C', '#5C0000'],
+        cool: ['#1C3A6E', '#4B0082', '#006400', '#8B0000'],
+        bold: ['#8B0000', '#4B0082', '#DAA520', '#006400'],
+        neutral: ['#4A3728', '#5C4033', '#8B6B57', '#2C1A0E'],
       };
     } else if (t === 'mahogany' || t === 'deep brown') {
       return {
-        warm: ['#FFD700', '#DAA520', '#8B0000', '#006400'],
-        cool: ['#4169E1', '#50C878', '#8B0000', '#FFD700'],
-        bold: ['#FFD700', '#FF1493', '#4169E1', '#50C878'],
-        neutral: ['#8B0000', '#006400', '#FFD700', '#4169E1'],
-        undertone: 'neutral',
+        warm: ['#8B0000', '#2E5E4E', '#C9A84C', '#4A1A08'],
+        cool: ['#1C3A6E', '#2E5E4E', '#C9A84C', '#8B0000'],
+        bold: ['#C9A84C', '#8B0000', '#1C3A6E', '#2E5E4E'],
+        neutral: ['#4A3728', '#8B0000', '#C9A84C', '#1C3A6E'],
       };
     } else if (t === 'coffee' || t === 'very deep') {
       return {
-        warm: ['#FF6B35', '#FFD700', '#FF1493', '#00CED1'],
-        cool: ['#00CED1', '#4169E1', '#FFD700', '#FF1493'],
-        bold: ['#FF0000', '#FFD700', '#00FF7F', '#FF1493'],
-        neutral: ['#FFD700', '#FF6B35', '#00CED1', '#FF1493'],
-        undertone: 'neutral',
+        warm: ['#FF6B35', '#FFD700', '#00CED1', '#FF1493'],
+        cool: ['#4169E1', '#00CED1', '#FFD700', '#FF1493'],
+        bold: ['#FFD700', '#FF0000', '#00FF7F', '#FF1493'],
+        neutral: ['#FF6B35', '#FFD700', '#00CED1', '#C0C0C0'],
       };
     } else if (t === 'ebony' || t === 'richest deep') {
       return {
-        warm: ['#FFD700', '#FF4500', '#FF1493', '#FFFFFF'],
-        cool: ['#FFFFFF', '#FFD700', '#7B2FBE', '#00CED1'],
+        warm: ['#FFD700', '#FF4500', '#FFFFFF', '#FF1493'],
+        cool: ['#FFFFFF', '#7B2FBE', '#FFD700', '#00CED1'],
         bold: ['#FFFFFF', '#FFD700', '#FF0000', '#7B2FBE'],
-        neutral: ['#FFFFFF', '#FFD700', '#C0C0C0', '#FF4500'],
-        undertone: 'neutral',
+        neutral: ['#FFD700', '#FFFFFF', '#C0C0C0', '#FF4500'],
       };
     }
+
     return {
       warm: ['#E74C3C', '#F39C12', '#27AE60', '#2980B9'],
       cool: ['#2980B9', '#8E44AD', '#27AE60', '#F39C12'],
       bold: ['#E74C3C', '#8E44AD', '#27AE60', '#F39C12'],
       neutral: ['#7F8C8D', '#95A5A6', '#BDC3C7', '#ECF0F1'],
-      undertone: 'neutral',
     };
   };
 
@@ -105,10 +97,10 @@ export default async function handler(req, res) {
   const selectedColors = toneBase[vibe] || toneBase.neutral;
 
   const colorDescriptions = {
-    cool: `sophisticated tones chosen to complement ${skinTone} skin in professional and polished settings`,
-    bold: `vibrant jewel tones and striking colors that make ${skinTone} skin radiate and command attention`,
-    warm: `rich warm earth tones that harmonize beautifully with ${skinTone} skin for an effortlessly natural look`,
-    neutral: `versatile balanced tones carefully selected to flatter ${skinTone} skin across any occasion`,
+    cool: `a polished mix of deep anchor tones, mid tones and a striking accent — all carefully chosen to complement ${skinTone} skin in professional settings`,
+    bold: `high-impact jewel tones and vivid statement colors that make ${skinTone} skin radiate and command attention in any room`,
+    warm: `rich warm earth tones with depth and contrast that harmonize beautifully with ${skinTone} skin for an effortlessly elevated look`,
+    neutral: `a versatile palette with depth, softness and an accent tone — carefully balanced to flatter ${skinTone} skin across every occasion`,
   };
 
   const colorDescription = colorDescriptions[vibe] || colorDescriptions.neutral;
@@ -124,18 +116,15 @@ User Profile:
 - Style Goal: ${goal}
 - Color Vibe: ${vibe}
 
-The color palette has already been selected for this person based on their skin tone and lifestyle.
-Colors: ${JSON.stringify(selectedColors)}
+The color palette has been specifically selected for ${skinTone} skin tone combined with a ${vibe} lifestyle vibe.
+Colors to use: ${JSON.stringify(selectedColors)}
 
-Your job is to:
-1. Create a style personality name that fits their lifestyle and goal
-2. Suggest 3 outfits (3 pieces each) that incorporate these colors naturally
-3. Give style rules specific to their body type and lifestyle
-4. Give an avoid list relevant to their specific situation
-5. Give one powerful quick win they can do today
+These colors include a dark anchor, mid tones, and an accent — guide the person to use them as a capsule wardrobe, not all at once.
 
 Return ONLY a raw JSON object with NO markdown, NO backticks, NO explanation:
-{"stylePersonality":"2-3 word archetype","colorPalette":${JSON.stringify(selectedColors)},"colorDescription":"${colorDescription}","outfits":[{"occasion":"name","outfitName":"name","pieces":[{"item":"specific clothing item incorporating the color palette","tip":"practical styling tip","search":"specific amazon search term"}]}],"styleRules":["specific rule 1","specific rule 2","specific rule 3"],"avoid":["specific thing 1","specific thing 2"],"quickWin":"one powerful actionable tip they can do today"}`;
+{"stylePersonality":"2-3 word archetype","colorPalette":${JSON.stringify(selectedColors)},"colorDescription":"${colorDescription}","outfits":[{"occasion":"name","outfitName":"name","pieces":[{"item":"specific clothing item in one of the palette colors","tip":"practical styling tip mentioning how to use the colors","search":"specific amazon search term"}]}],"styleRules":["specific rule 1","specific rule 2","specific rule 3"],"avoid":["specific thing 1","specific thing 2"],"quickWin":"one powerful actionable tip they can do today"}
+
+Include 3 outfits with 3 pieces each. Each outfit should use 1-2 colors from the palette as statement pieces with neutrals.`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
