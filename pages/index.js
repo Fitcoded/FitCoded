@@ -56,63 +56,63 @@ const steps = [
 const AMAZON = 'https://www.amazon.com/s?tag=fitcoded-20&k=';
 const ASOS = 'https://www.asos.com/search/?q=';
 
-const logoCSS = `
-  .fc-ring-pulse {
-    fill: none;
-    stroke: #C9A84C;
-    stroke-width: 1;
-    opacity: 0;
-    animation: fcPulse 2.5s ease 2.5s infinite;
+const logoCSS = `.fc-ring-pulse { fill: none; stroke: #C9A84C; stroke-width: 1; opacity: 0; animation: fcPulse 2.5s ease 2.5s infinite; } .fc-ring { fill: none; stroke: #C9A84C; stroke-width: 2.5; stroke-dasharray: 502; stroke-dashoffset: 502; animation: fcDraw 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.2s forwards; } .fc-letter-f { fill: #C9A84C; font-family: Georgia, serif; font-size: 52px; text-anchor: middle; dominant-baseline: central; opacity: 0; animation: fcFadeF 0.5s ease 1.3s forwards; } .fc-letter-c { fill: #C9A84C; font-family: Georgia, serif; font-size: 52px; text-anchor: middle; dominant-baseline: central; opacity: 0; animation: fcFadeC 0.5s ease 1.9s forwards; } @keyframes fcDraw { to { stroke-dashoffset: 0; } } @keyframes fcFadeF { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } } @keyframes fcFadeC { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } } @keyframes fcPulse { 0% { opacity: 0; } 30% { opacity: 0.25; } 100% { opacity: 0; } }`;
+
+// Try to extract partial JSON fields as they stream in
+function extractPartial(text) {
+  const result = {};
+
+  // stylePersonality
+  const spMatch = text.match(/"stylePersonality"\s*:\s*"([^"]+)"/);
+  if (spMatch) result.stylePersonality = spMatch[1];
+
+  // colorPalette
+  const cpMatch = text.match(/"colorPalette"\s*:\s*(\[[^\]]+\])/);
+  if (cpMatch) {
+    try { result.colorPalette = JSON.parse(cpMatch[1]); } catch (e) {}
   }
-  .fc-ring {
-    fill: none;
-    stroke: #C9A84C;
-    stroke-width: 2.5;
-    stroke-dasharray: 502;
-    stroke-dashoffset: 502;
-    animation: fcDraw 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.2s forwards;
+
+  // colorDescription
+  const cdMatch = text.match(/"colorDescription"\s*:\s*"([^"]+)"/);
+  if (cdMatch) result.colorDescription = cdMatch[1];
+
+  // outfits — extract however many are complete so far
+  const outfits = [];
+  const outfitRegex = /\{"occasion"\s*:\s*"([^"]+)"\s*,\s*"outfitName"\s*:\s*"([^"]+)"\s*,\s*"pieces"\s*:\s*(\[[^\]]+\])/g;
+  let match;
+  while ((match = outfitRegex.exec(text)) !== null) {
+    try {
+      const pieces = JSON.parse(match[3] + ']');
+      outfits.push({ occasion: match[1], outfitName: match[2], pieces });
+    } catch (e) {}
   }
-  .fc-letter-f {
-    fill: #C9A84C;
-    font-family: Georgia, serif;
-    font-size: 52px;
-    text-anchor: middle;
-    dominant-baseline: central;
-    opacity: 0;
-    animation: fcFadeF 0.5s ease 1.3s forwards;
+  if (outfits.length > 0) result.outfits = outfits;
+
+  // styleRules
+  const srMatch = text.match(/"styleRules"\s*:\s*(\[[^\]]+\])/);
+  if (srMatch) {
+    try { result.styleRules = JSON.parse(srMatch[1]); } catch (e) {}
   }
-  .fc-letter-c {
-    fill: #C9A84C;
-    font-family: Georgia, serif;
-    font-size: 52px;
-    text-anchor: middle;
-    dominant-baseline: central;
-    opacity: 0;
-    animation: fcFadeC 0.5s ease 1.9s forwards;
+
+  // avoid
+  const avMatch = text.match(/"avoid"\s*:\s*(\[[^\]]+\])/);
+  if (avMatch) {
+    try { result.avoid = JSON.parse(avMatch[1]); } catch (e) {}
   }
-  @keyframes fcDraw {
-    to { stroke-dashoffset: 0; }
-  }
-  @keyframes fcFadeF {
-    from { opacity: 0; transform: translateX(-8px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-  @keyframes fcFadeC {
-    from { opacity: 0; transform: translateX(8px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-  @keyframes fcPulse {
-    0% { opacity: 0; }
-    30% { opacity: 0.25; }
-    100% { opacity: 0; }
-  }
-`;
+
+  // quickWin
+  const qwMatch = text.match(/"quickWin"\s*:\s*"([^"]+)"/);
+  if (qwMatch) result.quickWin = qwMatch[1];
+
+  return result;
+}
 
 export default function Home() {
   const [step, setStep] = useState(-1);
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(false);
   const [styleResult, setStyleResult] = useState(null);
+  const [partialResult, setPartialResult] = useState(null);
   const [error, setError] = useState(null);
   const [showBanner, setShowBanner] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
@@ -120,10 +120,10 @@ export default function Home() {
   const [loadingMessage, setLoadingMessage] = useState(0);
 
   const loadingMessages = [
-    { main: 'Analyzing your skin tone...', sub: 'Reading your unique complexion' },
-    { main: 'Selecting your color palette...', sub: 'Matching colors to your tone' },
-    { main: 'Building your outfits...', sub: 'Curating pieces for your lifestyle' },
-    { main: 'Finalizing your style profile...', sub: 'Almost ready' },
+    { main: 'Analyzing your skin tone…', sub: 'Reading your unique complexion' },
+    { main: 'Selecting your color palette…', sub: 'Matching colors to your tone' },
+    { main: 'Building your outfits…', sub: 'Curating pieces for your lifestyle' },
+    { main: 'Finalizing your style profile…', sub: 'Almost ready' },
   ];
 
   useEffect(() => {
@@ -178,6 +178,9 @@ export default function Home() {
   const generate = async (a) => {
     setLoading(true);
     setError(null);
+    setPartialResult(null);
+    setStyleResult(null);
+
     try {
       const res = await fetch('/api/style', {
         method: 'POST',
@@ -187,6 +190,7 @@ export default function Home() {
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
+      let accumulated = '';
 
       while (true) {
         const { done, value } = await reader.read();
@@ -199,8 +203,18 @@ export default function Home() {
           if (line.startsWith('data: ')) {
             try {
               const parsed = JSON.parse(line.slice(6));
-              if (parsed.type === 'complete') {
+
+              if (parsed.type === 'chunk') {
+                accumulated += parsed.text;
+                // Update partial result as chunks arrive
+                const partial = extractPartial(accumulated);
+                if (partial.stylePersonality || partial.colorPalette) {
+                  setPartialResult(partial);
+                  setLoading(false); // Stop spinner as soon as first content arrives
+                }
+              } else if (parsed.type === 'complete') {
                 setStyleResult(parsed.result);
+                setPartialResult(null);
                 setLoading(false);
               } else if (parsed.type === 'error') {
                 throw new Error(parsed.error);
@@ -223,8 +237,13 @@ export default function Home() {
     setStep(-1);
     setAnswers({});
     setStyleResult(null);
+    setPartialResult(null);
     setError(null);
   };
+
+  // Show either final or partial result
+  const displayResult = styleResult || partialResult;
+  const isComplete = !!styleResult;
 
   const currentStep = steps[step];
 
@@ -323,6 +342,7 @@ export default function Home() {
           </div>
         )}
 
+        {/* Loading spinner — only shows until first content arrives */}
         {step === steps.length && loading && (
           <div className="center fade">
             <div className="spinner" />
@@ -338,89 +358,108 @@ export default function Home() {
           </div>
         )}
 
-        {styleResult && !loading && (
+        {/* Results — render progressively as data arrives */}
+        {displayResult && (
           <div className="results fade">
 
             <div className="res-header">
               <div className="badge">YOUR STYLE PROFILE</div>
-              <div className="persona">{styleResult.stylePersonality}</div>
+              {displayResult.stylePersonality && (
+                <div className="persona">{displayResult.stylePersonality}</div>
+              )}
             </div>
 
-            <div className="card">
-              <div className="card-title">YOUR COLOR PALETTE</div>
-              <div className="palette">
-                {styleResult.colorPalette?.map((c, i) => (
-                  <div key={i} className="swatch-wrap">
-                    <div className="swatch" style={{ background: c }} />
-                    <span className="color-label">{c}</span>
+            {displayResult.colorPalette && (
+              <div className="card fade">
+                <div className="card-title">YOUR COLOR PALETTE</div>
+                <div className="palette">
+                  {displayResult.colorPalette.map((c, i) => (
+                    <div key={i} className="swatch-wrap">
+                      <div className="swatch" style={{ background: c }} />
+                      <span className="color-label">{c}</span>
+                    </div>
+                  ))}
+                </div>
+                {displayResult.colorDescription && (
+                  <p className="color-desc">{displayResult.colorDescription}</p>
+                )}
+              </div>
+            )}
+
+            {/* Streaming indicator — shows while outfits are still loading */}
+            {!isComplete && displayResult.colorPalette && !displayResult.outfits && (
+              <div className="streaming-indicator">
+                <div className="stream-dot" /><div className="stream-dot" /><div className="stream-dot" />
+              </div>
+            )}
+
+            {displayResult.outfits && displayResult.outfits.length > 0 && (
+              <>
+                <div className="sec-title">YOUR OUTFITS</div>
+                {displayResult.outfits.map((outfit, i) => (
+                  <div key={i} className="card fade">
+                    <div className="outfit-top">
+                      <span className="occasion">{outfit.occasion?.toUpperCase()}</span>
+                      <span className="outfit-name">{outfit.outfitName}</span>
+                    </div>
+                    {outfit.pieces?.map((p, j) => (
+                      <div key={j} className="piece">
+                        <div className="piece-info">
+                          <span className="piece-item">{p.item}</span>
+                          <span className="piece-tip">{p.tip}</span>
+                        </div>
+                        <div className="shop-row">
+                          <a href={AMAZON + encodeURIComponent(p.search)} target="_blank" rel="noopener noreferrer" className="shop-a">Amazon</a>
+                          <a href={ASOS + encodeURIComponent(p.search)} target="_blank" rel="noopener noreferrer" className="shop-b">ASOS</a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </>
+            )}
+
+            {/* Streaming dots while more outfits are loading */}
+            {!isComplete && displayResult.outfits && displayResult.outfits.length > 0 && (
+              <div className="streaming-indicator">
+                <div className="stream-dot" /><div className="stream-dot" /><div className="stream-dot" />
+              </div>
+            )}
+
+            {displayResult.styleRules && displayResult.styleRules.length > 0 && (
+              <div className="card fade">
+                <div className="card-title">YOUR STYLE RULES</div>
+                {displayResult.styleRules.map((r, i) => (
+                  <div key={i} className="rule-row">
+                    <span className="rule-num">{i + 1}</span>
+                    <span className="rule-txt">{r}</span>
                   </div>
                 ))}
               </div>
-              <p className="color-desc">{styleResult.colorDescription}</p>
-            </div>
+            )}
 
-            <div className="sec-title">YOUR OUTFITS</div>
-            {styleResult.outfits?.map((outfit, i) => (
-              <div key={i} className="card">
-                <div className="outfit-top">
-                  <span className="occasion">{outfit.occasion?.toUpperCase()}</span>
-                  <span className="outfit-name">{outfit.outfitName}</span>
-                </div>
-                {outfit.pieces?.map((p, j) => (
-                  <div key={j} className="piece">
-                    <div className="piece-info">
-                      <span className="piece-item">{p.item}</span>
-                      <span className="piece-tip">{p.tip}</span>
-                    </div>
-                    <div className="shop-row">
-                      <a
-                        href={AMAZON + encodeURIComponent(p.search)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="shop-a"
-                      >
-                        Amazon
-                      </a>
-                      <a
-                        href={ASOS + encodeURIComponent(p.search)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="shop-b"
-                      >
-                        ASOS
-                      </a>
-                    </div>
+            {displayResult.avoid && displayResult.avoid.length > 0 && (
+              <div className="card avoid-card fade">
+                <div className="card-title">WHAT TO AVOID</div>
+                {displayResult.avoid.map((a, i) => (
+                  <div key={i} className="rule-row">
+                    <span className="avoid-x">✕</span>
+                    <span className="rule-txt">{a}</span>
                   </div>
                 ))}
               </div>
-            ))}
+            )}
 
-            <div className="card">
-              <div className="card-title">YOUR STYLE RULES</div>
-              {styleResult.styleRules?.map((r, i) => (
-                <div key={i} className="rule-row">
-                  <span className="rule-num">{i + 1}</span>
-                  <span className="rule-txt">{r}</span>
-                </div>
-              ))}
-            </div>
+            {displayResult.quickWin && (
+              <div className="qw-card fade">
+                <div className="qw-label">⚡ QUICK WIN</div>
+                <p className="qw-txt">{displayResult.quickWin}</p>
+              </div>
+            )}
 
-            <div className="card avoid-card">
-              <div className="card-title">WHAT TO AVOID</div>
-              {styleResult.avoid?.map((a, i) => (
-                <div key={i} className="rule-row">
-                  <span className="avoid-x">✕</span>
-                  <span className="rule-txt">{a}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="qw-card">
-              <div className="qw-label">⚡ QUICK WIN</div>
-              <p className="qw-txt">{styleResult.quickWin}</p>
-            </div>
-
-            <button className="cta full" onClick={reset}>Start Over</button>
+            {isComplete && (
+              <button className="cta full" onClick={reset}>Start Over</button>
+            )}
 
           </div>
         )}
@@ -445,9 +484,28 @@ export default function Home() {
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
+        @keyframes blink {
+          0%, 80%, 100% { opacity: 0; }
+          40% { opacity: 1; }
+        }
         .fade {
           animation: fadeIn 0.4s ease forwards;
         }
+        .streaming-indicator {
+          display: flex;
+          gap: 6px;
+          justify-content: center;
+          padding: 16px 0;
+        }
+        .stream-dot {
+          width: 6px;
+          height: 6px;
+          background: #c9a96e;
+          border-radius: 50%;
+          animation: blink 1.4s infinite;
+        }
+        .stream-dot:nth-child(2) { animation-delay: 0.2s; }
+        .stream-dot:nth-child(3) { animation-delay: 0.4s; }
         .install-banner {
           position: fixed;
           bottom: 0;
@@ -478,13 +536,8 @@ export default function Home() {
           flex-direction: column;
           gap: 2px;
         }
-        .install-text strong {
-          color: #c9a96e;
-        }
-        .install-text span {
-          color: #888;
-          font-size: 11px;
-        }
+        .install-text strong { color: #c9a96e; }
+        .install-text span { color: #888; font-size: 11px; }
         .install-btn {
           background: #c9a96e;
           color: #0a0a0a;
@@ -546,10 +599,7 @@ export default function Home() {
           margin-bottom: 20px;
           letter-spacing: -0.02em;
         }
-        .accent {
-          color: #c9a96e;
-          font-style: italic;
-        }
+        .accent { color: #c9a96e; font-style: italic; }
         .sub {
           font-size: 15px;
           color: #888;
@@ -569,9 +619,7 @@ export default function Home() {
           font-weight: 700;
           transition: opacity 0.2s;
         }
-        .cta:hover {
-          opacity: 0.85;
-        }
+        .cta:hover { opacity: 0.85; }
         .cta.full {
           width: 100%;
           padding: 18px;
@@ -609,11 +657,7 @@ export default function Home() {
           margin-bottom: 28px;
           line-height: 1.3;
         }
-        .options {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
+        .options { display: flex; flex-direction: column; gap: 10px; }
         .option {
           background: transparent;
           border: 1px solid #222;
@@ -625,10 +669,7 @@ export default function Home() {
           font-family: Arial, sans-serif;
           transition: all 0.2s;
         }
-        .option:hover {
-          border-color: #c9a96e;
-          color: #c9a96e;
-        }
+        .option:hover { border-color: #c9a96e; color: #c9a96e; }
         .skin-grid {
           display: grid;
           grid-template-columns: repeat(5, 1fr);
@@ -646,26 +687,10 @@ export default function Home() {
           gap: 6px;
           transition: all 0.2s;
         }
-        .skin-btn:hover {
-          border-color: #c9a96e;
-        }
-        .skin-swatch {
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-        }
-        .skin-name {
-          font-size: 10px;
-          color: #f0ede8;
-          font-family: Arial, sans-serif;
-          text-align: center;
-        }
-        .skin-desc {
-          font-size: 9px;
-          color: #666;
-          font-family: Arial, sans-serif;
-          text-align: center;
-        }
+        .skin-btn:hover { border-color: #c9a96e; }
+        .skin-swatch { width: 36px; height: 36px; border-radius: 50%; }
+        .skin-name { font-size: 10px; color: #f0ede8; font-family: Arial, sans-serif; text-align: center; }
+        .skin-desc { font-size: 9px; color: #666; font-family: Arial, sans-serif; text-align: center; }
         .back {
           background: transparent;
           border: none;
@@ -686,17 +711,8 @@ export default function Home() {
           margin: 0 auto 20px;
           animation: spin 0.8s linear infinite;
         }
-        .loading-text {
-          font-size: 17px;
-          font-style: italic;
-          margin-bottom: 8px;
-        }
-        .loading-sub {
-          font-size: 12px;
-          color: #555;
-          font-family: Arial, sans-serif;
-          letter-spacing: 0.05em;
-        }
+        .loading-text { font-size: 17px; font-style: italic; margin-bottom: 8px; }
+        .loading-sub { font-size: 12px; color: #555; font-family: Arial, sans-serif; letter-spacing: 0.05em; }
         .error {
           color: #e07070;
           font-family: Arial, sans-serif;
@@ -704,10 +720,7 @@ export default function Home() {
           margin-bottom: 20px;
           line-height: 1.6;
         }
-        .res-header {
-          text-align: center;
-          margin-bottom: 36px;
-        }
+        .res-header { text-align: center; margin-bottom: 36px; }
         .persona {
           font-size: clamp(26px, 6vw, 44px);
           font-weight: 400;
@@ -729,33 +742,11 @@ export default function Home() {
           margin-bottom: 14px;
           font-weight: 400;
         }
-        .palette {
-          display: flex;
-          gap: 10px;
-          margin-bottom: 10px;
-          flex-wrap: wrap;
-        }
-        .swatch-wrap {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 4px;
-        }
-        .swatch {
-          width: 40px;
-          height: 40px;
-        }
-        .color-label {
-          font-size: 10px;
-          color: #555;
-          font-family: Arial, sans-serif;
-        }
-        .color-desc {
-          font-size: 13px;
-          color: #777;
-          font-family: Arial, sans-serif;
-          line-height: 1.6;
-        }
+        .palette { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+        .swatch-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .swatch { width: 40px; height: 40px; }
+        .color-label { font-size: 10px; color: #555; font-family: Arial, sans-serif; }
+        .color-desc { font-size: 13px; color: #777; font-family: Arial, sans-serif; line-height: 1.6; }
         .sec-title {
           font-size: 10px;
           letter-spacing: 0.2em;
@@ -773,16 +764,8 @@ export default function Home() {
           flex-wrap: wrap;
           gap: 6px;
         }
-        .occasion {
-          font-size: 10px;
-          letter-spacing: 0.2em;
-          color: #c9a96e;
-          font-family: Arial, sans-serif;
-        }
-        .outfit-name {
-          font-size: 15px;
-          font-style: italic;
-        }
+        .occasion { font-size: 10px; letter-spacing: 0.2em; color: #c9a96e; font-family: Arial, sans-serif; }
+        .outfit-name { font-size: 15px; font-style: italic; }
         .piece {
           border-top: 1px solid #1a1a1a;
           padding-top: 12px;
@@ -793,27 +776,10 @@ export default function Home() {
           gap: 10px;
           flex-wrap: wrap;
         }
-        .piece-info {
-          flex: 1;
-          min-width: 130px;
-        }
-        .piece-item {
-          font-size: 14px;
-          font-family: Arial, sans-serif;
-          display: block;
-          margin-bottom: 3px;
-        }
-        .piece-tip {
-          font-size: 11px;
-          color: #555;
-          font-family: Arial, sans-serif;
-          line-height: 1.5;
-          display: block;
-        }
-        .shop-row {
-          display: flex;
-          gap: 6px;
-        }
+        .piece-info { flex: 1; min-width: 130px; }
+        .piece-item { font-size: 14px; font-family: Arial, sans-serif; display: block; margin-bottom: 3px; }
+        .piece-tip { font-size: 11px; color: #555; font-family: Arial, sans-serif; line-height: 1.5; display: block; }
+        .shop-row { display: flex; gap: 6px; }
         .shop-a {
           background: #c9a96e;
           color: #0a0a0a;
@@ -833,55 +799,14 @@ export default function Home() {
           text-decoration: none;
           letter-spacing: 0.05em;
         }
-        .rule-row {
-          display: flex;
-          gap: 10px;
-          margin-bottom: 9px;
-          align-items: flex-start;
-        }
-        .rule-num {
-          color: #c9a96e;
-          font-size: 12px;
-          font-style: italic;
-          width: 16px;
-          flex-shrink: 0;
-        }
-        .rule-txt {
-          font-size: 13px;
-          font-family: Arial, sans-serif;
-          color: #bbb;
-          line-height: 1.6;
-        }
-        .avoid-card {
-          border-color: #1a1010;
-          background: #0d0b0b;
-        }
-        .avoid-x {
-          color: #6a2a2a;
-          font-size: 11px;
-          width: 16px;
-          flex-shrink: 0;
-          padding-top: 2px;
-        }
-        .qw-card {
-          background: #c9a96e;
-          padding: 22px;
-          margin-bottom: 28px;
-        }
-        .qw-label {
-          font-size: 10px;
-          letter-spacing: 0.2em;
-          color: #0a0a0a;
-          font-family: Arial, sans-serif;
-          margin-bottom: 8px;
-          font-weight: 700;
-        }
-        .qw-txt {
-          font-size: 14px;
-          color: #0a0a0a;
-          font-family: Arial, sans-serif;
-          line-height: 1.6;
-        }
+        .rule-row { display: flex; gap: 10px; margin-bottom: 9px; align-items: flex-start; }
+        .rule-num { color: #c9a96e; font-size: 12px; font-style: italic; width: 16px; flex-shrink: 0; }
+        .rule-txt { font-size: 13px; font-family: Arial, sans-serif; color: #bbb; line-height: 1.6; }
+        .avoid-card { border-color: #1a1010; background: #0d0b0b; }
+        .avoid-x { color: #6a2a2a; font-size: 11px; width: 16px; flex-shrink: 0; padding-top: 2px; }
+        .qw-card { background: #c9a96e; padding: 22px; margin-bottom: 28px; }
+        .qw-label { font-size: 10px; letter-spacing: 0.2em; color: #0a0a0a; font-family: Arial, sans-serif; margin-bottom: 8px; font-weight: 700; }
+        .qw-txt { font-size: 14px; color: #0a0a0a; font-family: Arial, sans-serif; line-height: 1.6; }
       `}</style>
     </>
   );
