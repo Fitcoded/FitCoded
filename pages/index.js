@@ -117,6 +117,14 @@ export default function Home() {
   const [showBanner, setShowBanner] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [loadingMessage, setLoadingMessage] = useState(0);
+
+  const loadingMessages = [
+    { main: 'Analyzing your skin tone...', sub: 'Reading your unique complexion' },
+    { main: 'Selecting your color palette...', sub: 'Matching colors to your tone' },
+    { main: 'Building your outfits...', sub: 'Curating pieces for your lifestyle' },
+    { main: 'Finalizing your style profile...', sub: 'Almost ready' },
+  ];
 
   useEffect(() => {
     const ios = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
@@ -133,6 +141,17 @@ export default function Home() {
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
     return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
   }, []);
+
+  useEffect(() => {
+    let interval;
+    if (loading) {
+      setLoadingMessage(0);
+      interval = setInterval(() => {
+        setLoadingMessage((prev) => (prev + 1) % 4);
+      }, 2200);
+    }
+    return () => clearInterval(interval);
+  }, [loading]);
 
   const handleInstall = async () => {
     if (deferredPrompt) {
@@ -282,8 +301,8 @@ export default function Home() {
         {step === steps.length && loading && (
           <div className="center fade">
             <div className="spinner" />
-            <p className="loading-text">Decoding your style DNA...</p>
-            <p className="loading-sub">Building your personalized profile</p>
+            <p className="loading-text">{loadingMessages[loadingMessage].main}</p>
+            <p className="loading-sub">{loadingMessages[loadingMessage].sub}</p>
           </div>
         )}
 
