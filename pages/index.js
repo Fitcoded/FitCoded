@@ -184,12 +184,37 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(a),
       });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      setStyleResult(data);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const parsed = JSON.parse(line.slice(6));
+              if (parsed.type === 'complete') {
+                setStyleResult(parsed.result);
+                setLoading(false);
+              } else if (parsed.type === 'error') {
+                throw new Error(parsed.error);
+              }
+            } catch (e) {
+              if (e.message !== 'Unexpected end of JSON input') {
+                throw e;
+              }
+            }
+          }
+        }
+      }
     } catch (e) {
       setError(e.message);
-    } finally {
       setLoading(false);
     }
   };
