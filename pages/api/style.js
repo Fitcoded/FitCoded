@@ -171,6 +171,11 @@ Return ONLY a raw JSON object with NO markdown, NO backticks, NO explanation:
 Include 3 outfits with 3 pieces each.`;
 
   try {
+    // Set headers for streaming
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -181,32 +186,56 @@ Include 3 outfits with 3 pieces each.`;
       body: JSON.stringify({
         model: 'claude-sonnet-4-5',
         max_tokens: 2500,
+        stream: true,
         messages: [{ role: 'user', content: prompt }],
       }),
     });
 
-    const data = await response.json();
+    let fullText = '';
 
-    if (data.error) {
-      return res.status(500).json({ error: data.error.message });
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value, { stream: true });
+      const lines = chunk.split('\n');
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6);
+          if (data === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
+              fullText += parsed.delta.text;
+              // Send progress updates to frontend
+              res.write(`data: ${JSON.stringify({ type: 'chunk', text: parsed.delta.text })}\n\n`);
+            }
+          } catch (e) {
+            // Skip malformed chunks
+          }
+        }
+      }
     }
 
-    const raw = data.content?.[0]?.text || '';
-    const start = raw.indexOf('{');
-    const end = raw.lastIndexOf('}');
-
-    if (start === -1 || end === -1) {
-      return res.status(500).json({ error: 'Invalid response from AI' });
+    // Parse full response and enforce locked colors
+    const start = fullText.indexOf('{');
+    const end = fullText.lastIndexOf('}');
+    if (start !== -1 && end !== -1) {
+      const parsed = JSON.parse(fullText.substring(start, end + 1));
+      parsed.colorPalette = selectedColors;
+      parsed.colorDescription = colorDescription;
+      res.write(`data: ${JSON.stringify({ type: 'complete', result: parsed })}\n\n`);
+    } else {
+      res.write(`data: ${JSON.stringify({ type: 'error', error: 'Invalid response from AI' })}\n\n`);
     }
 
-    const parsed = JSON.parse(raw.substring(start, end + 1));
-
-    // Always enforce the correct skin tone + lifestyle colors
-    parsed.colorPalette = selectedColors;
-    parsed.colorDescription = colorDescription;
-
-    return res.status(200).json(parsed);
+    res.end();
   } catch (e) {
-    return res.status(500).json({ error: e.message });
+    res.write(`data: ${JSON.stringify({ type: 'error', error: e.message })}\n\n`);
+    res.end();
   }
 }
