@@ -18,30 +18,26 @@ const seasons = [
   {
     id: 'spring',
     name: 'Spring',
-    desc: 'Warm & clear',
-    detail: 'Warm undertones, light & bright coloring',
-    color: '#F9C784',
+    vibe: 'Fresh · Light fabrics · Warm optimism',
+    accent: '#C17A3C',
   },
   {
     id: 'summer',
     name: 'Summer',
-    desc: 'Cool & soft',
-    detail: 'Cool undertones, soft & muted coloring',
-    color: '#A8C8E8',
+    vibe: 'Vibrant · Breathable · Bold warm energy',
+    accent: '#E8622A',
   },
   {
     id: 'autumn',
     name: 'Autumn',
-    desc: 'Warm & muted',
-    detail: 'Warm undertones, deep & earthy coloring',
-    color: '#C17A3C',
+    vibe: 'Rich textures · Layered · Warm depth',
+    accent: '#8B4513',
   },
   {
     id: 'winter',
     name: 'Winter',
-    desc: 'Cool & clear',
-    detail: 'Cool undertones, deep & high-contrast coloring',
-    color: '#4A235A',
+    vibe: 'Deep tones · Heavy fabrics · High contrast',
+    accent: '#1A3A5C',
   },
 ];
 
@@ -69,7 +65,7 @@ const steps = [
   },
   {
     id: 'season',
-    question: 'What is your color season?',
+    question: 'What season are you dressing for?',
     options: [],
     isSkinTone: false,
     isSeason: true,
@@ -114,19 +110,17 @@ export default function Home() {
   const [loadingMessage, setLoadingMessage] = useState(0);
 
   const loadingMessages = [
-    { main: 'Analyzing your color season…', sub: 'Mapping your natural coloring' },
-    { main: 'Selecting your color palette…', sub: 'Matching colors to your tone and season' },
-    { main: 'Building your outfits…', sub: 'Curating pieces for your lifestyle' },
-    { main: 'Finalizing your style profile…', sub: 'Almost ready' },
+    { main: 'Analyzing your profile…', sub: 'Reading your skin tone and season' },
+    { main: 'Building your palette…', sub: 'Matching colors to your combination' },
+    { main: 'Curating your outfits…', sub: 'Tailoring pieces for your lifestyle' },
+    { main: 'Finalizing your profile…', sub: 'Almost ready' },
   ];
 
   useEffect(() => {
     const ios = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
     const isStandalone = window.navigator.standalone;
     setIsIOS(ios);
-    if (ios && !isStandalone) {
-      setTimeout(() => setShowBanner(true), 3000);
-    }
+    if (ios && !isStandalone) setTimeout(() => setShowBanner(true), 3000);
     const handleBeforeInstall = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -140,9 +134,7 @@ export default function Home() {
     let interval;
     if (loading) {
       setLoadingMessage(0);
-      interval = setInterval(() => {
-        setLoadingMessage((prev) => (prev + 1) % 4);
-      }, 2200);
+      interval = setInterval(() => setLoadingMessage((prev) => (prev + 1) % 4), 2200);
     }
     return () => clearInterval(interval);
   }, [loading]);
@@ -150,10 +142,8 @@ export default function Home() {
   const handleInstall = async () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
-      const choiceResult = await deferredPrompt.userChoice;
-      if (choiceResult.outcome === 'accepted') {
-        setShowBanner(false);
-      }
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') setShowBanner(false);
       setDeferredPrompt(null);
     }
   };
@@ -178,17 +168,13 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(a),
       });
-
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
-
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-
         const chunk = decoder.decode(value, { stream: true });
         const lines = chunk.split('\n');
-
         for (const line of lines) {
           if (line.startsWith('data: ')) {
             try {
@@ -200,9 +186,7 @@ export default function Home() {
                 throw new Error(parsed.error);
               }
             } catch (e) {
-              if (e.message !== 'Unexpected end of JSON input') {
-                throw e;
-              }
+              if (e.message !== 'Unexpected end of JSON input') throw e;
             }
           }
         }
@@ -244,11 +228,10 @@ export default function Home() {
             </div>
             <div className="install-text">
               <strong>Add FitCoded to your home screen</strong>
-              {isIOS ? (
-                <span>Tap <strong>Share</strong> then <strong>Add to Home Screen</strong></span>
-              ) : (
-                <span>Install the app for quick access</span>
-              )}
+              {isIOS
+                ? <span>Tap <strong>Share</strong> then <strong>Add to Home Screen</strong></span>
+                : <span>Install the app for quick access</span>
+              }
             </div>
             {!isIOS && deferredPrompt && (
               <button className="install-btn" onClick={handleInstall}>Install</button>
@@ -263,13 +246,8 @@ export default function Home() {
         {step === -1 && (
           <div className="center fade">
             <div className="badge">YOUR STYLE ADVISOR</div>
-            <h1 className="hero">
-              Your Style,<br />
-              <span className="accent">Decoded.</span>
-            </h1>
-            <p className="sub">
-              Answer 7 questions. Get a personalized style profile with outfits you can shop right now.
-            </p>
+            <h1 className="hero">Your Style,<br /><span className="accent">Decoded.</span></h1>
+            <p className="sub">Answer 7 questions. Get a personalized style profile with outfits you can shop right now.</p>
             <button className="cta" onClick={() => setStep(0)}>Get My Style Profile →</button>
             <p className="free">Free · No sign-up · 60 seconds</p>
           </div>
@@ -286,11 +264,7 @@ export default function Home() {
             {currentStep.isSkinTone ? (
               <div className="skin-grid">
                 {skinTones.map((tone) => (
-                  <button
-                    key={tone.id}
-                    className="skin-btn"
-                    onClick={() => handleSelect(tone.name)}
-                  >
+                  <button key={tone.id} className="skin-btn" onClick={() => handleSelect(tone.name)}>
                     <div className="skin-swatch" style={{ background: tone.color }} />
                     <span className="skin-name">{tone.name}</span>
                     <span className="skin-desc">{tone.desc}</span>
@@ -300,28 +274,19 @@ export default function Home() {
             ) : currentStep.isSeason ? (
               <div className="season-grid">
                 {seasons.map((s) => (
-                  <button
-                    key={s.id}
-                    className="season-btn"
-                    onClick={() => handleSelect(s.name)}
-                  >
-                    <div className="season-swatch" style={{ background: s.color }} />
-                    <span className="season-name">{s.name}</span>
-                    <span className="season-desc">{s.desc}</span>
-                    <span className="season-detail">{s.detail}</span>
+                  <button key={s.id} className="season-btn" onClick={() => handleSelect(s.name)}>
+                    <div className="season-accent" style={{ background: s.accent }} />
+                    <div className="season-text">
+                      <span className="season-name">{s.name}</span>
+                      <span className="season-vibe">{s.vibe}</span>
+                    </div>
                   </button>
                 ))}
               </div>
             ) : (
               <div className="options">
                 {currentStep.options.map((opt) => (
-                  <button
-                    key={opt}
-                    className="option"
-                    onClick={() => handleSelect(opt)}
-                  >
-                    {opt}
-                  </button>
+                  <button key={opt} className="option" onClick={() => handleSelect(opt)}>{opt}</button>
                 ))}
               </div>
             )}
@@ -349,7 +314,6 @@ export default function Home() {
 
         {styleResult && !loading && (
           <div className="results fade">
-
             <div className="res-header">
               <div className="badge">YOUR STYLE PROFILE</div>
               <div className="persona">{styleResult.stylePersonality}</div>
@@ -382,22 +346,8 @@ export default function Home() {
                       <span className="piece-tip">{p.tip}</span>
                     </div>
                     <div className="shop-row">
-                      <a
-                        href={AMAZON + encodeURIComponent(p.search)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="shop-a"
-                      >
-                        Amazon
-                      </a>
-                      <a
-                        href={ASOS + encodeURIComponent(p.search)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="shop-b"
-                      >
-                        ASOS
-                      </a>
+                      <a href={AMAZON + encodeURIComponent(p.search)} target="_blank" rel="noopener noreferrer" className="shop-a">Amazon</a>
+                      <a href={ASOS + encodeURIComponent(p.search)} target="_blank" rel="noopener noreferrer" className="shop-b">ASOS</a>
                     </div>
                   </div>
                 ))}
@@ -430,369 +380,82 @@ export default function Home() {
             </div>
 
             <button className="cta full" onClick={reset}>Start Over</button>
-
           </div>
         )}
 
       </div>
 
       <style jsx global>{`
-        * {
-          box-sizing: border-box;
-          margin: 0;
-          padding: 0;
-        }
-        body {
-          background: #0a0a0a;
-          color: #f0ede8;
-          font-family: Georgia, serif;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-        .fade {
-          animation: fadeIn 0.4s ease forwards;
-        }
-        .install-banner {
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          background: #1a1a1a;
-          border-top: 1px solid #c9a96e;
-          padding: 14px 16px;
-          z-index: 1000;
-        }
-        .install-content {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          max-width: 560px;
-          margin: 0 auto;
-        }
-        .logo-wrap {
-          flex-shrink: 0;
-          width: 40px;
-          height: 40px;
-        }
-        .install-text {
-          flex: 1;
-          font-family: Arial, sans-serif;
-          font-size: 13px;
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #0a0a0a; color: #f0ede8; font-family: Georgia, serif; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .fade { animation: fadeIn 0.4s ease forwards; }
+        .install-banner { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; border-top: 1px solid #c9a96e; padding: 14px 16px; z-index: 1000; }
+        .install-content { display: flex; align-items: center; gap: 12px; max-width: 560px; margin: 0 auto; }
+        .logo-wrap { flex-shrink: 0; width: 40px; height: 40px; }
+        .install-text { flex: 1; font-family: Arial, sans-serif; font-size: 13px; display: flex; flex-direction: column; gap: 2px; }
         .install-text strong { color: #c9a96e; }
         .install-text span { color: #888; font-size: 11px; }
-        .install-btn {
-          background: #c9a96e;
-          color: #0a0a0a;
-          border: none;
-          padding: 8px 16px;
-          font-size: 12px;
-          font-family: Arial, sans-serif;
-          cursor: pointer;
-          font-weight: 700;
-          flex-shrink: 0;
-        }
-        .install-close {
-          background: transparent;
-          border: none;
-          color: #555;
-          font-size: 16px;
-          cursor: pointer;
-          flex-shrink: 0;
-          padding: 4px;
-        }
-        .root {
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 20px;
-          padding-bottom: 80px;
-        }
-        .center {
-          max-width: 480px;
-          width: 100%;
-          text-align: center;
-          padding: 40px 0;
-        }
-        .wrap {
-          max-width: 500px;
-          width: 100%;
-        }
-        .results {
-          max-width: 560px;
-          width: 100%;
-          padding-bottom: 60px;
-        }
-        .badge {
-          display: inline-block;
-          font-size: 10px;
-          letter-spacing: 0.25em;
-          color: #c9a96e;
-          border: 1px solid #c9a96e;
-          padding: 4px 12px;
-          margin-bottom: 24px;
-          font-family: Arial, sans-serif;
-        }
-        .hero {
-          font-size: clamp(40px, 10vw, 68px);
-          font-weight: 400;
-          line-height: 1.05;
-          margin-bottom: 20px;
-          letter-spacing: -0.02em;
-        }
+        .install-btn { background: #c9a96e; color: #0a0a0a; border: none; padding: 8px 16px; font-size: 12px; font-family: Arial, sans-serif; cursor: pointer; font-weight: 700; flex-shrink: 0; }
+        .install-close { background: transparent; border: none; color: #555; font-size: 16px; cursor: pointer; flex-shrink: 0; padding: 4px; }
+        .root { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; padding-bottom: 80px; }
+        .center { max-width: 480px; width: 100%; text-align: center; padding: 40px 0; }
+        .wrap { max-width: 500px; width: 100%; }
+        .results { max-width: 560px; width: 100%; padding-bottom: 60px; }
+        .badge { display: inline-block; font-size: 10px; letter-spacing: 0.25em; color: #c9a96e; border: 1px solid #c9a96e; padding: 4px 12px; margin-bottom: 24px; font-family: Arial, sans-serif; }
+        .hero { font-size: clamp(40px, 10vw, 68px); font-weight: 400; line-height: 1.05; margin-bottom: 20px; letter-spacing: -0.02em; }
         .accent { color: #c9a96e; font-style: italic; }
-        .sub {
-          font-size: 15px;
-          color: #888;
-          line-height: 1.7;
-          margin-bottom: 36px;
-          font-family: Arial, sans-serif;
-        }
-        .cta {
-          background: #c9a96e;
-          color: #0a0a0a;
-          border: none;
-          padding: 15px 32px;
-          font-size: 13px;
-          letter-spacing: 0.1em;
-          font-family: Arial, sans-serif;
-          cursor: pointer;
-          font-weight: 700;
-          transition: opacity 0.2s;
-        }
+        .sub { font-size: 15px; color: #888; line-height: 1.7; margin-bottom: 36px; font-family: Arial, sans-serif; }
+        .cta { background: #c9a96e; color: #0a0a0a; border: none; padding: 15px 32px; font-size: 13px; letter-spacing: 0.1em; font-family: Arial, sans-serif; cursor: pointer; font-weight: 700; transition: opacity 0.2s; }
         .cta:hover { opacity: 0.85; }
-        .cta.full {
-          width: 100%;
-          padding: 18px;
-          font-size: 12px;
-          letter-spacing: 0.15em;
-        }
-        .free {
-          margin-top: 14px;
-          font-size: 11px;
-          color: #444;
-          font-family: Arial, sans-serif;
-          letter-spacing: 0.05em;
-        }
-        .progress {
-          width: 100%;
-          height: 2px;
-          background: #1e1e1e;
-          margin-bottom: 28px;
-        }
-        .fill {
-          height: 100%;
-          background: #c9a96e;
-          transition: width 0.3s ease;
-        }
-        .step-count {
-          font-size: 11px;
-          letter-spacing: 0.2em;
-          color: #444;
-          font-family: Arial, sans-serif;
-          margin-bottom: 14px;
-        }
-        .question {
-          font-size: clamp(20px, 5vw, 28px);
-          font-weight: 400;
-          margin-bottom: 28px;
-          line-height: 1.3;
-        }
+        .cta.full { width: 100%; padding: 18px; font-size: 12px; letter-spacing: 0.15em; }
+        .free { margin-top: 14px; font-size: 11px; color: #444; font-family: Arial, sans-serif; letter-spacing: 0.05em; }
+        .progress { width: 100%; height: 2px; background: #1e1e1e; margin-bottom: 28px; }
+        .fill { height: 100%; background: #c9a96e; transition: width 0.3s ease; }
+        .step-count { font-size: 11px; letter-spacing: 0.2em; color: #444; font-family: Arial, sans-serif; margin-bottom: 14px; }
+        .question { font-size: clamp(20px, 5vw, 28px); font-weight: 400; margin-bottom: 28px; line-height: 1.3; }
         .options { display: flex; flex-direction: column; gap: 10px; }
-        .option {
-          background: transparent;
-          border: 1px solid #222;
-          color: #f0ede8;
-          padding: 15px 18px;
-          text-align: left;
-          font-size: 14px;
-          cursor: pointer;
-          font-family: Arial, sans-serif;
-          transition: all 0.2s;
-        }
+        .option { background: transparent; border: 1px solid #222; color: #f0ede8; padding: 15px 18px; text-align: left; font-size: 14px; cursor: pointer; font-family: Arial, sans-serif; transition: all 0.2s; }
         .option:hover { border-color: #c9a96e; color: #c9a96e; }
-        .skin-grid {
-          display: grid;
-          grid-template-columns: repeat(5, 1fr);
-          gap: 10px;
-          margin-bottom: 8px;
-        }
-        .skin-btn {
-          background: transparent;
-          border: 1px solid #222;
-          padding: 10px 6px;
-          cursor: pointer;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 6px;
-          transition: all 0.2s;
-        }
+        .skin-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 8px; }
+        .skin-btn { background: transparent; border: 1px solid #222; padding: 10px 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: all 0.2s; }
         .skin-btn:hover { border-color: #c9a96e; }
         .skin-swatch { width: 36px; height: 36px; border-radius: 50%; }
         .skin-name { font-size: 10px; color: #f0ede8; font-family: Arial, sans-serif; text-align: center; }
         .skin-desc { font-size: 9px; color: #666; font-family: Arial, sans-serif; text-align: center; }
-        .season-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 12px;
-          margin-bottom: 8px;
-        }
-        .season-btn {
-          background: transparent;
-          border: 1px solid #222;
-          padding: 16px 12px;
-          cursor: pointer;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 6px;
-          transition: all 0.2s;
-          text-align: center;
-        }
+        .season-grid { display: flex; flex-direction: column; gap: 10px; }
+        .season-btn { background: transparent; border: 1px solid #222; padding: 16px 18px; cursor: pointer; display: flex; align-items: center; gap: 16px; transition: all 0.2s; text-align: left; }
         .season-btn:hover { border-color: #c9a96e; }
-        .season-swatch {
-          width: 44px;
-          height: 44px;
-          border-radius: 50%;
-          margin-bottom: 4px;
-        }
-        .season-name {
-          font-size: 14px;
-          color: #f0ede8;
-          font-family: Georgia, serif;
-          font-style: italic;
-        }
-        .season-desc {
-          font-size: 11px;
-          color: #c9a96e;
-          font-family: Arial, sans-serif;
-          letter-spacing: 0.05em;
-        }
-        .season-detail {
-          font-size: 10px;
-          color: #555;
-          font-family: Arial, sans-serif;
-          line-height: 1.4;
-        }
-        .back {
-          background: transparent;
-          border: none;
-          color: #444;
-          font-size: 12px;
-          cursor: pointer;
-          margin-top: 20px;
-          font-family: Arial, sans-serif;
-          letter-spacing: 0.05em;
-          display: block;
-        }
-        .spinner {
-          width: 36px;
-          height: 36px;
-          border: 2px solid #1e1e1e;
-          border-top: 2px solid #c9a96e;
-          border-radius: 50%;
-          margin: 0 auto 20px;
-          animation: spin 0.8s linear infinite;
-        }
+        .season-accent { width: 3px; height: 44px; flex-shrink: 0; border-radius: 2px; }
+        .season-text { display: flex; flex-direction: column; gap: 4px; }
+        .season-name { font-size: 16px; color: #f0ede8; font-family: Georgia, serif; font-weight: 400; }
+        .season-vibe { font-size: 11px; color: #666; font-family: Arial, sans-serif; letter-spacing: 0.03em; }
+        .back { background: transparent; border: none; color: #444; font-size: 12px; cursor: pointer; margin-top: 20px; font-family: Arial, sans-serif; letter-spacing: 0.05em; display: block; }
+        .spinner { width: 36px; height: 36px; border: 2px solid #1e1e1e; border-top: 2px solid #c9a96e; border-radius: 50%; margin: 0 auto 20px; animation: spin 0.8s linear infinite; }
         .loading-text { font-size: 17px; font-style: italic; margin-bottom: 8px; }
         .loading-sub { font-size: 12px; color: #555; font-family: Arial, sans-serif; letter-spacing: 0.05em; }
-        .error {
-          color: #e07070;
-          font-family: Arial, sans-serif;
-          font-size: 13px;
-          margin-bottom: 20px;
-          line-height: 1.6;
-        }
+        .error { color: #e07070; font-family: Arial, sans-serif; font-size: 13px; margin-bottom: 20px; line-height: 1.6; }
         .res-header { text-align: center; margin-bottom: 36px; }
-        .persona {
-          font-size: clamp(26px, 6vw, 44px);
-          font-weight: 400;
-          font-style: italic;
-          color: #c9a96e;
-          margin-top: 14px;
-        }
-        .card {
-          border: 1px solid #1e1e1e;
-          padding: 22px;
-          margin-bottom: 14px;
-          background: #0f0f0f;
-        }
-        .card-title {
-          font-size: 10px;
-          letter-spacing: 0.2em;
-          color: #c9a96e;
-          font-family: Arial, sans-serif;
-          margin-bottom: 14px;
-          font-weight: 400;
-        }
+        .persona { font-size: clamp(26px, 6vw, 44px); font-weight: 400; font-style: italic; color: #c9a96e; margin-top: 14px; }
+        .card { border: 1px solid #1e1e1e; padding: 22px; margin-bottom: 14px; background: #0f0f0f; }
+        .card-title { font-size: 10px; letter-spacing: 0.2em; color: #c9a96e; font-family: Arial, sans-serif; margin-bottom: 14px; font-weight: 400; }
         .palette { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
         .swatch-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .swatch { width: 40px; height: 40px; }
         .color-label { font-size: 10px; color: #555; font-family: Arial, sans-serif; }
         .color-desc { font-size: 13px; color: #777; font-family: Arial, sans-serif; line-height: 1.6; }
-        .sec-title {
-          font-size: 10px;
-          letter-spacing: 0.2em;
-          color: #444;
-          font-family: Arial, sans-serif;
-          margin-bottom: 10px;
-          font-weight: 400;
-          margin-top: 6px;
-        }
-        .outfit-top {
-          display: flex;
-          justify-content: space-between;
-          align-items: baseline;
-          margin-bottom: 14px;
-          flex-wrap: wrap;
-          gap: 6px;
-        }
+        .sec-title { font-size: 10px; letter-spacing: 0.2em; color: #444; font-family: Arial, sans-serif; margin-bottom: 10px; font-weight: 400; margin-top: 6px; }
+        .outfit-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
         .occasion { font-size: 10px; letter-spacing: 0.2em; color: #c9a96e; font-family: Arial, sans-serif; }
         .outfit-name { font-size: 15px; font-style: italic; }
-        .piece {
-          border-top: 1px solid #1a1a1a;
-          padding-top: 12px;
-          margin-top: 12px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 10px;
-          flex-wrap: wrap;
-        }
+        .piece { border-top: 1px solid #1a1a1a; padding-top: 12px; margin-top: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
         .piece-info { flex: 1; min-width: 130px; }
         .piece-item { font-size: 14px; font-family: Arial, sans-serif; display: block; margin-bottom: 3px; }
         .piece-tip { font-size: 11px; color: #555; font-family: Arial, sans-serif; line-height: 1.5; display: block; }
         .shop-row { display: flex; gap: 6px; }
-        .shop-a {
-          background: #c9a96e;
-          color: #0a0a0a;
-          padding: 5px 10px;
-          font-size: 10px;
-          font-family: Arial, sans-serif;
-          text-decoration: none;
-          font-weight: 700;
-          letter-spacing: 0.05em;
-        }
-        .shop-b {
-          border: 1px solid #c9a96e;
-          color: #c9a96e;
-          padding: 5px 10px;
-          font-size: 10px;
-          font-family: Arial, sans-serif;
-          text-decoration: none;
-          letter-spacing: 0.05em;
-        }
+        .shop-a { background: #c9a96e; color: #0a0a0a; padding: 5px 10px; font-size: 10px; font-family: Arial, sans-serif; text-decoration: none; font-weight: 700; letter-spacing: 0.05em; }
+        .shop-b { border: 1px solid #c9a96e; color: #c9a96e; padding: 5px 10px; font-size: 10px; font-family: Arial, sans-serif; text-decoration: none; letter-spacing: 0.05em; }
         .rule-row { display: flex; gap: 10px; margin-bottom: 9px; align-items: flex-start; }
         .rule-num { color: #c9a96e; font-size: 12px; font-style: italic; width: 16px; flex-shrink: 0; }
         .rule-txt { font-size: 13px; font-family: Arial, sans-serif; color: #bbb; line-height: 1.6; }
