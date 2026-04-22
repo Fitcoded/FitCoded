@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
 
 const skinTones = [
   { id: 'ivory', name: 'Ivory', color: '#FDEBD0', desc: 'Very fair' },
@@ -383,6 +384,15 @@ export default function Home() {
           </div>
         )}
 
+        <footer className="footer">
+          <p className="footer-copy">© {new Date().getFullYear()} FitCoded</p>
+          <div className="footer-links">
+            <Link href="/privacy" className="footer-link">Privacy Policy</Link>
+            <span className="footer-dot">·</span>
+            <span className="footer-affiliate">Contains affiliate links</span>
+          </div>
+        </footer>
+
       </div>
 
       <style jsx global>{`
@@ -464,6 +474,13 @@ export default function Home() {
         .qw-card { background: #c9a96e; padding: 22px; margin-bottom: 28px; }
         .qw-label { font-size: 10px; letter-spacing: 0.2em; color: #0a0a0a; font-family: Arial, sans-serif; margin-bottom: 8px; font-weight: 700; }
         .qw-txt { font-size: 14px; color: #0a0a0a; font-family: Arial, sans-serif; line-height: 1.6; }
+        .footer { width: 100%; max-width: 560px; text-align: center; padding: 24px 0 40px; border-top: 1px solid #1a1a1a; margin-top: 20px; }
+        .footer-copy { font-size: 11px; color: #333; font-family: Arial, sans-serif; margin-bottom: 6px; }
+        .footer-links { display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .footer-link { font-size: 11px; color: #444; font-family: Arial, sans-serif; text-decoration: none; letter-spacing: 0.03em; }
+        .footer-link:hover { color: #c9a96e; }
+        .footer-dot { font-size: 11px; color: #333; font-family: Arial, sans-serif; }
+        .footer-affiliate { font-size: 11px; color: #333; font-family: Arial, sans-serif; letter-spacing: 0.03em; }
       `}</style>
     </>
   );
