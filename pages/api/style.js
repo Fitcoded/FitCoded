@@ -16,57 +16,60 @@ export default async function handler(req, res) {
     return 'neutral';
   };
 
-  // Season palettes — based on classic color theory
   const getSeasonPalettes = (season) => {
     const s = (season || '').toLowerCase();
 
     if (s === 'spring') {
+      // Warm, clear, light — coral, peach, warm ivory, fresh green/teal accents
       return {
-        cool:     ['#1A5276', '#5DADE2', '#F9E4C8', '#C0392B'],
-        bold:     ['#F39C12', '#E67E22', '#F9E4C8', '#2E86C1'],
-        warm:     ['#D4A017', '#E8956D', '#F9E4C8', '#2E8B57'],
-        creative: ['#C17A3C', '#E8956D', '#F9E4C8', '#2E8B57'],
-        neutral:  ['#7D6608', '#D4AC0D', '#F9E4C8', '#C0392B'],
+        cool:     ['#1A5E4A', '#5DADE2', '#F9E4C8', '#C0392B'],   // forest teal, sky blue, warm ivory, coral red
+        bold:     ['#E8622A', '#F0A500', '#F9E4C8', '#2E8B57'],   // burnt coral, amber, ivory, forest green
+        warm:     ['#C17A3C', '#E8956D', '#F9E4C8', '#2E8B57'],   // cognac, terracotta, ivory, forest green
+        creative: ['#D4A017', '#E8622A', '#F9E4C8', '#1A5E4A'],   // amber gold, coral, ivory, teal
+        neutral:  ['#8B5E3C', '#C19A6B', '#F9E4C8', '#2E8B57'],   // warm brown, camel, ivory, forest green
       };
     }
 
     if (s === 'summer') {
+      // Cool, soft, muted — dusty rose, soft navy, muted teal, warm grey
       return {
-        cool:     ['#1F618D', '#7FB3D3', '#F0EAF8', '#8E44AD'],
-        bold:     ['#6C3483', '#A569BD', '#F0EAF8', '#1A5276'],
-        warm:     ['#4A235A', '#7D3C98', '#F0EAF8', '#1F618D'],
-        creative: ['#5B2C6F', '#9B59B6', '#F0EAF8', '#2471A3'],
-        neutral:  ['#5D6D7E', '#A9CCE3', '#F0EAF8', '#7B241C'],
+        cool:     ['#1F4E6E', '#7FB3D3', '#EDE8F0', '#8B3A5A'],   // deep navy, steel blue, soft lavender white, dusty rose
+        bold:     ['#1F4E6E', '#7B6E8A', '#EDE8F0', '#8B3A5A'],   // deep navy, dusty purple, soft white, dusty rose
+        warm:     ['#4A6741', '#8FAF7E', '#EDE8F0', '#8B3A5A'],   // muted sage, soft green, lavender white, dusty rose
+        creative: ['#5B7FA6', '#8B3A5A', '#EDE8F0', '#4A6741'],   // slate blue, dusty rose, soft white, sage green
+        neutral:  ['#5D6D7E', '#8B9EA8', '#EDE8F0', '#7B3A5A'],   // slate grey, muted blue grey, soft white, dusty mauve
       };
     }
 
     if (s === 'autumn') {
+      // Warm, deep, muted — cognac, rust, olive, forest green, camel
       return {
-        cool:     ['#2C3E50', '#5D4037', '#C4A882', '#2E5E4E'],
-        bold:     ['#6D4C41', '#BF360C', '#D4A574', '#1B5E20'],
-        warm:     ['#4E342E', '#8D6E63', '#D7CCC8', '#2E7D32'],
-        creative: ['#3E2723', '#795548', '#D4A574', '#2E5E4E'],
-        neutral:  ['#4A3728', '#8B6344', '#C19A6B', '#3B5E42'],
+        cool:     ['#2C3E50', '#5D4037', '#C4A882', '#2E5E4E'],   // charcoal, deep brown, camel, forest green
+        bold:     ['#8B2500', '#C17A3C', '#D4A574', '#2E5E4E'],   // deep rust, cognac, warm tan, forest green
+        warm:     ['#4E342E', '#8D6E63', '#D7CCC8', '#4A6741'],   // deep espresso, warm taupe, blush beige, olive
+        creative: ['#3E2723', '#7B4A2C', '#D4A574', '#2E5E4E'],   // dark espresso, cognac brown, warm tan, forest green
+        neutral:  ['#4A3728', '#8B6344', '#C19A6B', '#3B5E42'],   // deep brown, warm brown, camel, olive green
       };
     }
 
     if (s === 'winter') {
+      // Cool, deep, clear — true black/navy, crisp white, jewel tones, icy accents
       return {
-        cool:     ['#0D1B2A', '#1A3A5C', '#F0F4F8', '#8B0000'],
-        bold:     ['#1A0A2E', '#4B0082', '#F5F5F5', '#B8860B'],
-        warm:     ['#1C1C1C', '#2C3E50', '#FFFFFF', '#C0392B'],
-        creative: ['#0A0A1A', '#2E1A47', '#F5F5F5', '#B8860B'],
-        neutral:  ['#1A1A2E', '#2C3E50', '#ECF0F1', '#6B0F2A'],
+        cool:     ['#0D1B2A', '#1A3A5C', '#F0F4F8', '#8B0000'],   // near black, deep navy, crisp white, true red
+        bold:     ['#1A0A2E', '#006B6B', '#F5F5F5', '#8B0000'],   // deep plum black, deep teal, crisp white, true red
+        warm:     ['#1C1C1C', '#8B0000', '#F5F5F5', '#006B6B'],   // true black, deep red, crisp white, deep teal
+        creative: ['#0A0A1A', '#1A5C3A', '#F5F5F5', '#8B0000'],   // near black, deep emerald, crisp white, true red
+        neutral:  ['#1A1A2E', '#2C3E50', '#ECF0F1', '#6B0F2A'],   // deep navy black, dark slate, crisp white, deep burgundy
       };
     }
 
-    // Fallback if no season selected — lifestyle only
+    // Fallback — no season selected, lifestyle only
     return {
-      cool:     ['#1A3A5C', '#4A6FA5', '#D4E4F0', '#8B2246'],
-      bold:     ['#1C1C2E', '#4B0082', '#C9A84C', '#8B0000'],
-      warm:     ['#4A3728', '#8B6344', '#C4A882', '#2E5E4E'],
-      creative: ['#3D2B1F', '#6B4C3B', '#C4A882', '#2E5E4E'],
-      neutral:  ['#2C3E50', '#6B7A8D', '#BDC3C7', '#8B4557'],
+      cool:     ['#1A3A5C', '#5D8AA8', '#D4E4F0', '#8B2246'],     // deep navy, steel blue, pale blue, burgundy
+      bold:     ['#1C1C2E', '#006B6B', '#F5F5F5', '#C9A84C'],     // near black, deep teal, white, gold
+      warm:     ['#4A3728', '#8B6344', '#C4A882', '#2E5E4E'],     // deep brown, warm brown, camel, forest green
+      creative: ['#3D2B1F', '#7B4A2C', '#C4A882', '#2E5E4E'],     // espresso, cognac, camel, forest green
+      neutral:  ['#2C3E50', '#6B7A8D', '#D4D8DC', '#8B4557'],     // dark slate, steel grey, light grey, muted rose
     };
   };
 
@@ -75,12 +78,12 @@ export default async function handler(req, res) {
     const s = (season || '').toLowerCase();
 
     const seasonNote = s
-      ? `This person is a ${season} season, meaning their natural coloring has ${
-          s === 'spring' ? 'warm, clear, light undertones — peach, coral and warm ivory are their naturals'
-          : s === 'summer' ? 'cool, soft, muted undertones — dusty rose, lavender and soft grey are their naturals'
-          : s === 'autumn' ? 'warm, deep, muted undertones — rust, cognac and olive are their naturals'
-          : 'cool, deep, clear undertones — true black, crisp white and jewel tones are their naturals'
-        }.`
+      ? `This person is a ${season} season — ${
+          s === 'spring' ? 'warm, clear undertones with light bright coloring. Warm ivories, corals and fresh greens are their naturals.'
+          : s === 'summer' ? 'cool, soft, muted undertones. Dusty rose, soft navy, sage and muted teal feel most natural on them.'
+          : s === 'autumn' ? 'warm, deep, muted undertones. Rust, cognac, olive and forest green are their naturals.'
+          : 'cool, deep, clear undertones. True black, crisp white, deep teal and jewel tones are their naturals.'
+        }`
       : '';
 
     if (t === 'ivory' || t === 'porcelain') {
@@ -139,7 +142,7 @@ SKIN TONE STYLING (${skinTone}):
       return `${seasonNote}
 SKIN TONE STYLING (${skinTone}):
 - Earth tones — cognac, warm brown, olive, terracotta, camel — are deeply harmonious with ${skinTone} skin
-- Deep jewel tones create elegant depth-on-depth contrast
+- Deep tones create elegant depth-on-depth contrast
 - Cream, ivory and warm white create striking luminous contrast
 - Describe how each color either harmonizes with or elegantly contrasts ${skinTone} skin`;
     }
@@ -175,16 +178,16 @@ SKIN TONE STYLING (${skinTone}):
   const skinToneGuidance = getSkinToneGuidance(skinTone, season);
 
   const colorDescriptions = {
-    cool: `a polished mix of deep anchor tones and refined neutrals — chosen to project authority and complement ${skinTone} skin's ${season || 'natural'} undertones in professional settings`,
-    bold: `deep moody tones with a luminous accent — chosen to create presence and drama that flatters ${skinTone} skin's ${season || 'natural'} coloring`,
-    warm: `natural earth tones with organic depth — colors that feel grounded outdoors and harmonize with ${skinTone} skin's ${season || 'natural'} warmth`,
-    creative: `rich earthy tones with warmth and depth — a grounded palette that feels intentional and complements ${skinTone} skin's ${season || 'natural'} richness`,
-    neutral: `a versatile mix of refined neutrals with a grounding anchor — balanced to flatter ${skinTone} skin's ${season || 'natural'} undertones across every occasion`,
+    cool:     `a polished mix of deep anchor tones and refined neutrals — drawn from ${season || 'your natural'} season coloring to project authority while complementing ${skinTone} skin`,
+    bold:     `deep statement tones with a luminous accent — rooted in ${season || 'your natural'} season palette to create presence and drama that flatters ${skinTone} skin`,
+    warm:     `natural earth tones with organic depth — grounded in ${season || 'your natural'} season warmth and chosen to harmonize beautifully with ${skinTone} skin`,
+    creative: `rich tones with warmth and intentional depth — drawn from ${season || 'your natural'} season palette to feel editorial and complement ${skinTone} skin's richness`,
+    neutral:  `a versatile mix of refined neutrals with a grounding anchor — balanced across your ${season || 'natural'} season palette to flatter ${skinTone} skin in every setting`,
   };
 
   const colorDescription = colorDescriptions[vibe] || colorDescriptions.neutral;
 
-  const prompt = `You are a world-class personal style advisor who uses both seasonal color theory and skin-tone-aware styling. Give highly personalized advice based on the user's season type, skin tone, lifestyle and goals.
+  const prompt = `You are a world-class personal style advisor who uses both seasonal color theory and skin-tone-aware styling to give deeply personalized recommendations.
 
 User Profile:
 - Gender: ${gender}
@@ -199,23 +202,24 @@ The following color palette has been selected based on the user's SEASON TYPE an
 ${JSON.stringify(selectedColors)}
 
 PALETTE RULES:
-- The palette is driven by season type and lifestyle, not skin tone alone
+- Palette is driven by season type and lifestyle — not skin tone alone
 - Use 1 statement color per outfit maximum
 - The lightest color is the base/neutral
 - The deepest color is the anchor piece
 - Never combine more than 2 palette colors in one outfit
+- Each outfit must use a DIFFERENT statement color from the palette
 
 ${skinToneGuidance}
 
 MANDATORY RULES:
 1. Every outfit piece tip MUST reference ${skinTone} skin specifically and explain how the color works with it
-2. Reference the ${season || 'natural'} season coloring when describing why colors work
+2. Reference the ${season || 'natural'} season coloring when explaining why colors work
 3. The avoid list must explain why each item clashes with ${skinTone} skin's undertones or season type
-4. The quick win must be the single highest-impact change for someone with ${skinTone} skin and ${season || 'their'} coloring
+4. The quick win must be the single highest-impact change for ${skinTone} skin with ${season || 'their'} coloring
 5. Outfit names must feel editorial — specific to the lifestyle and ${skinTone} skin's energy
 6. stylePersonality must reflect the lifestyle and season type energy
-7. NEVER include hex codes in item names — use plain descriptive color words only
-8. DO NOT default to bright colors for deeper skin tones — let season and lifestyle drive the palette
+7. NEVER include hex codes in item names — plain descriptive color words only
+8. DO NOT default to bright or neon colors — let season and lifestyle drive everything
 
 Return ONLY a raw JSON object with NO markdown, NO backticks, NO explanation:
 {"stylePersonality":"2-3 word archetype","colorPalette":${JSON.stringify(selectedColors)},"colorDescription":"${colorDescription}","outfits":[{"occasion":"name","outfitName":"editorial name","pieces":[{"item":"clothing item with plain color description","tip":"explains how this works with ${skinTone} skin and ${season || 'their'} season coloring","search":"specific amazon search term"}]}],"styleRules":["rule specific to ${skinTone} skin and ${season || 'their'} season 1","rule 2","rule 3"],"avoid":["item — why it clashes with ${skinTone} skin or ${season || 'their'} season type","second item"],"quickWin":"highest-impact tip for ${skinTone} skin with ${season || 'their'} season coloring"}
