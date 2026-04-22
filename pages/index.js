@@ -64,13 +64,6 @@ const steps = [
     isSeason: false,
   },
   {
-    id: 'season',
-    question: 'What season are you dressing for?',
-    options: [],
-    isSkinTone: false,
-    isSeason: true,
-  },
-  {
     id: 'budget',
     question: "What's your monthly style budget?",
     options: ['Under $50', '$50-$150', '$150-$300', '$300+'],
@@ -90,6 +83,13 @@ const steps = [
     options: ['Look more put-together', 'Attract romantic interest', 'Command respect at work', 'Build a signature look', 'Upgrade from basics'],
     isSkinTone: false,
     isSeason: false,
+  },
+  {
+    id: 'season',
+    question: 'What season are you dressing for?',
+    options: [],
+    isSkinTone: false,
+    isSeason: true,
   },
 ];
 
