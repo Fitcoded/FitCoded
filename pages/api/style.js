@@ -216,6 +216,12 @@ ${seasonContext}
 - Reference the ${season} season context when describing fabric and layering choices`;
   };
 
+  // ─── ARTICLE HELPER (a vs an) ──────────────────────────────────────────────
+  const getArticle = (word) => {
+    const vowels = ['a', 'e', 'i', 'o', 'u'];
+    return vowels.includes((word || '').charAt(0).toLowerCase()) ? 'an' : 'a';
+  };
+
   // ─── ASSEMBLE ──────────────────────────────────────────────────────────────
   const skinGroup = getSkinToneGroup(skinTone);
   const occasion = getOccasion(lifestyle, goal);
@@ -232,7 +238,11 @@ ${seasonContext}
     winter: 'heavy fabrics, deep dramatic tones, cozy luxury and high contrast',
   };
   const seasonVibe = seasonVibes[(season || '').toLowerCase()] || 'intentional considered styling';
-  const colorDescription = `a palette drawn from ${season || 'your'} season's energy — chosen specifically for ${skinTone} skin and a ${lifestyle?.toLowerCase() || 'your'} lifestyle`;
+
+  const lifestyleLower = lifestyle?.toLowerCase() || 'your';
+  const article = getArticle(lifestyleLower);
+  const colorDescription = `a palette drawn from ${season || 'your'} season's energy — chosen specifically for ${skinTone} skin and ${article} ${lifestyleLower} lifestyle`;
+
   const currentYear = new Date().getFullYear();
   const currentSeason = season || 'current season';
 
