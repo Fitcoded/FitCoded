@@ -14,42 +14,86 @@ const skinTones = [
   { id: 'ebony', name: 'Ebony', color: '#2C0D03', desc: 'Richest deep' },
 ];
 
+const seasons = [
+  {
+    id: 'spring',
+    name: 'Spring',
+    desc: 'Warm & clear',
+    detail: 'Warm undertones, light & bright coloring',
+    color: '#F9C784',
+  },
+  {
+    id: 'summer',
+    name: 'Summer',
+    desc: 'Cool & soft',
+    detail: 'Cool undertones, soft & muted coloring',
+    color: '#A8C8E8',
+  },
+  {
+    id: 'autumn',
+    name: 'Autumn',
+    desc: 'Warm & muted',
+    detail: 'Warm undertones, deep & earthy coloring',
+    color: '#C17A3C',
+  },
+  {
+    id: 'winter',
+    name: 'Winter',
+    desc: 'Cool & clear',
+    detail: 'Cool undertones, deep & high-contrast coloring',
+    color: '#4A235A',
+  },
+];
+
 const steps = [
   {
     id: 'gender',
     question: 'Who are we styling today?',
     options: ['Man', 'Woman', 'Non-binary / Gender-fluid'],
     isSkinTone: false,
+    isSeason: false,
   },
   {
     id: 'bodyType',
     question: 'How would you describe your build?',
     options: ['Slim / Lean', 'Athletic / Toned', 'Average / Medium', 'Broad / Muscular', 'Curvy / Full-figured'],
     isSkinTone: false,
+    isSeason: false,
   },
   {
     id: 'skinTone',
     question: 'What is your skin tone?',
     options: [],
     isSkinTone: true,
+    isSeason: false,
+  },
+  {
+    id: 'season',
+    question: 'What is your color season?',
+    options: [],
+    isSkinTone: false,
+    isSeason: true,
   },
   {
     id: 'budget',
     question: "What's your monthly style budget?",
     options: ['Under $50', '$50-$150', '$150-$300', '$300+'],
     isSkinTone: false,
+    isSeason: false,
   },
   {
     id: 'lifestyle',
     question: 'What best describes your day-to-day life?',
     options: ['Student / Campus life', 'Office / Corporate', 'Creative / Freelance', 'Active / Outdoor', 'Social / Nightlife'],
     isSkinTone: false,
+    isSeason: false,
   },
   {
     id: 'goal',
     question: "What's your style goal?",
     options: ['Look more put-together', 'Attract romantic interest', 'Command respect at work', 'Build a signature look', 'Upgrade from basics'],
     isSkinTone: false,
+    isSeason: false,
   },
 ];
 
@@ -70,8 +114,8 @@ export default function Home() {
   const [loadingMessage, setLoadingMessage] = useState(0);
 
   const loadingMessages = [
-    { main: 'Analyzing your skin tone…', sub: 'Reading your unique complexion' },
-    { main: 'Selecting your color palette…', sub: 'Matching colors to your tone' },
+    { main: 'Analyzing your color season…', sub: 'Mapping your natural coloring' },
+    { main: 'Selecting your color palette…', sub: 'Matching colors to your tone and season' },
     { main: 'Building your outfits…', sub: 'Curating pieces for your lifestyle' },
     { main: 'Finalizing your style profile…', sub: 'Almost ready' },
   ];
@@ -224,7 +268,7 @@ export default function Home() {
               <span className="accent">Decoded.</span>
             </h1>
             <p className="sub">
-              Answer 6 questions. Get a personalized style profile with outfits you can shop right now.
+              Answer 7 questions. Get a personalized style profile with outfits you can shop right now.
             </p>
             <button className="cta" onClick={() => setStep(0)}>Get My Style Profile →</button>
             <p className="free">Free · No sign-up · 60 seconds</p>
@@ -250,6 +294,21 @@ export default function Home() {
                     <div className="skin-swatch" style={{ background: tone.color }} />
                     <span className="skin-name">{tone.name}</span>
                     <span className="skin-desc">{tone.desc}</span>
+                  </button>
+                ))}
+              </div>
+            ) : currentStep.isSeason ? (
+              <div className="season-grid">
+                {seasons.map((s) => (
+                  <button
+                    key={s.id}
+                    className="season-btn"
+                    onClick={() => handleSelect(s.name)}
+                  >
+                    <div className="season-swatch" style={{ background: s.color }} />
+                    <span className="season-name">{s.name}</span>
+                    <span className="season-desc">{s.desc}</span>
+                    <span className="season-detail">{s.detail}</span>
                   </button>
                 ))}
               </div>
@@ -428,13 +487,8 @@ export default function Home() {
           flex-direction: column;
           gap: 2px;
         }
-        .install-text strong {
-          color: #c9a96e;
-        }
-        .install-text span {
-          color: #888;
-          font-size: 11px;
-        }
+        .install-text strong { color: #c9a96e; }
+        .install-text span { color: #888; font-size: 11px; }
         .install-btn {
           background: #c9a96e;
           color: #0a0a0a;
@@ -496,10 +550,7 @@ export default function Home() {
           margin-bottom: 20px;
           letter-spacing: -0.02em;
         }
-        .accent {
-          color: #c9a96e;
-          font-style: italic;
-        }
+        .accent { color: #c9a96e; font-style: italic; }
         .sub {
           font-size: 15px;
           color: #888;
@@ -519,9 +570,7 @@ export default function Home() {
           font-weight: 700;
           transition: opacity 0.2s;
         }
-        .cta:hover {
-          opacity: 0.85;
-        }
+        .cta:hover { opacity: 0.85; }
         .cta.full {
           width: 100%;
           padding: 18px;
@@ -559,11 +608,7 @@ export default function Home() {
           margin-bottom: 28px;
           line-height: 1.3;
         }
-        .options {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
+        .options { display: flex; flex-direction: column; gap: 10px; }
         .option {
           background: transparent;
           border: 1px solid #222;
@@ -575,10 +620,7 @@ export default function Home() {
           font-family: Arial, sans-serif;
           transition: all 0.2s;
         }
-        .option:hover {
-          border-color: #c9a96e;
-          color: #c9a96e;
-        }
+        .option:hover { border-color: #c9a96e; color: #c9a96e; }
         .skin-grid {
           display: grid;
           grid-template-columns: repeat(5, 1fr);
@@ -596,25 +638,52 @@ export default function Home() {
           gap: 6px;
           transition: all 0.2s;
         }
-        .skin-btn:hover {
-          border-color: #c9a96e;
+        .skin-btn:hover { border-color: #c9a96e; }
+        .skin-swatch { width: 36px; height: 36px; border-radius: 50%; }
+        .skin-name { font-size: 10px; color: #f0ede8; font-family: Arial, sans-serif; text-align: center; }
+        .skin-desc { font-size: 9px; color: #666; font-family: Arial, sans-serif; text-align: center; }
+        .season-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 12px;
+          margin-bottom: 8px;
         }
-        .skin-swatch {
-          width: 36px;
-          height: 36px;
+        .season-btn {
+          background: transparent;
+          border: 1px solid #222;
+          padding: 16px 12px;
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 6px;
+          transition: all 0.2s;
+          text-align: center;
+        }
+        .season-btn:hover { border-color: #c9a96e; }
+        .season-swatch {
+          width: 44px;
+          height: 44px;
           border-radius: 50%;
+          margin-bottom: 4px;
         }
-        .skin-name {
-          font-size: 10px;
+        .season-name {
+          font-size: 14px;
           color: #f0ede8;
-          font-family: Arial, sans-serif;
-          text-align: center;
+          font-family: Georgia, serif;
+          font-style: italic;
         }
-        .skin-desc {
-          font-size: 9px;
-          color: #666;
+        .season-desc {
+          font-size: 11px;
+          color: #c9a96e;
           font-family: Arial, sans-serif;
-          text-align: center;
+          letter-spacing: 0.05em;
+        }
+        .season-detail {
+          font-size: 10px;
+          color: #555;
+          font-family: Arial, sans-serif;
+          line-height: 1.4;
         }
         .back {
           background: transparent;
@@ -636,17 +705,8 @@ export default function Home() {
           margin: 0 auto 20px;
           animation: spin 0.8s linear infinite;
         }
-        .loading-text {
-          font-size: 17px;
-          font-style: italic;
-          margin-bottom: 8px;
-        }
-        .loading-sub {
-          font-size: 12px;
-          color: #555;
-          font-family: Arial, sans-serif;
-          letter-spacing: 0.05em;
-        }
+        .loading-text { font-size: 17px; font-style: italic; margin-bottom: 8px; }
+        .loading-sub { font-size: 12px; color: #555; font-family: Arial, sans-serif; letter-spacing: 0.05em; }
         .error {
           color: #e07070;
           font-family: Arial, sans-serif;
@@ -654,10 +714,7 @@ export default function Home() {
           margin-bottom: 20px;
           line-height: 1.6;
         }
-        .res-header {
-          text-align: center;
-          margin-bottom: 36px;
-        }
+        .res-header { text-align: center; margin-bottom: 36px; }
         .persona {
           font-size: clamp(26px, 6vw, 44px);
           font-weight: 400;
@@ -679,33 +736,11 @@ export default function Home() {
           margin-bottom: 14px;
           font-weight: 400;
         }
-        .palette {
-          display: flex;
-          gap: 10px;
-          margin-bottom: 10px;
-          flex-wrap: wrap;
-        }
-        .swatch-wrap {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 4px;
-        }
-        .swatch {
-          width: 40px;
-          height: 40px;
-        }
-        .color-label {
-          font-size: 10px;
-          color: #555;
-          font-family: Arial, sans-serif;
-        }
-        .color-desc {
-          font-size: 13px;
-          color: #777;
-          font-family: Arial, sans-serif;
-          line-height: 1.6;
-        }
+        .palette { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+        .swatch-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .swatch { width: 40px; height: 40px; }
+        .color-label { font-size: 10px; color: #555; font-family: Arial, sans-serif; }
+        .color-desc { font-size: 13px; color: #777; font-family: Arial, sans-serif; line-height: 1.6; }
         .sec-title {
           font-size: 10px;
           letter-spacing: 0.2em;
@@ -723,16 +758,8 @@ export default function Home() {
           flex-wrap: wrap;
           gap: 6px;
         }
-        .occasion {
-          font-size: 10px;
-          letter-spacing: 0.2em;
-          color: #c9a96e;
-          font-family: Arial, sans-serif;
-        }
-        .outfit-name {
-          font-size: 15px;
-          font-style: italic;
-        }
+        .occasion { font-size: 10px; letter-spacing: 0.2em; color: #c9a96e; font-family: Arial, sans-serif; }
+        .outfit-name { font-size: 15px; font-style: italic; }
         .piece {
           border-top: 1px solid #1a1a1a;
           padding-top: 12px;
@@ -743,27 +770,10 @@ export default function Home() {
           gap: 10px;
           flex-wrap: wrap;
         }
-        .piece-info {
-          flex: 1;
-          min-width: 130px;
-        }
-        .piece-item {
-          font-size: 14px;
-          font-family: Arial, sans-serif;
-          display: block;
-          margin-bottom: 3px;
-        }
-        .piece-tip {
-          font-size: 11px;
-          color: #555;
-          font-family: Arial, sans-serif;
-          line-height: 1.5;
-          display: block;
-        }
-        .shop-row {
-          display: flex;
-          gap: 6px;
-        }
+        .piece-info { flex: 1; min-width: 130px; }
+        .piece-item { font-size: 14px; font-family: Arial, sans-serif; display: block; margin-bottom: 3px; }
+        .piece-tip { font-size: 11px; color: #555; font-family: Arial, sans-serif; line-height: 1.5; display: block; }
+        .shop-row { display: flex; gap: 6px; }
         .shop-a {
           background: #c9a96e;
           color: #0a0a0a;
@@ -783,55 +793,14 @@ export default function Home() {
           text-decoration: none;
           letter-spacing: 0.05em;
         }
-        .rule-row {
-          display: flex;
-          gap: 10px;
-          margin-bottom: 9px;
-          align-items: flex-start;
-        }
-        .rule-num {
-          color: #c9a96e;
-          font-size: 12px;
-          font-style: italic;
-          width: 16px;
-          flex-shrink: 0;
-        }
-        .rule-txt {
-          font-size: 13px;
-          font-family: Arial, sans-serif;
-          color: #bbb;
-          line-height: 1.6;
-        }
-        .avoid-card {
-          border-color: #1a1010;
-          background: #0d0b0b;
-        }
-        .avoid-x {
-          color: #6a2a2a;
-          font-size: 11px;
-          width: 16px;
-          flex-shrink: 0;
-          padding-top: 2px;
-        }
-        .qw-card {
-          background: #c9a96e;
-          padding: 22px;
-          margin-bottom: 28px;
-        }
-        .qw-label {
-          font-size: 10px;
-          letter-spacing: 0.2em;
-          color: #0a0a0a;
-          font-family: Arial, sans-serif;
-          margin-bottom: 8px;
-          font-weight: 700;
-        }
-        .qw-txt {
-          font-size: 14px;
-          color: #0a0a0a;
-          font-family: Arial, sans-serif;
-          line-height: 1.6;
-        }
+        .rule-row { display: flex; gap: 10px; margin-bottom: 9px; align-items: flex-start; }
+        .rule-num { color: #c9a96e; font-size: 12px; font-style: italic; width: 16px; flex-shrink: 0; }
+        .rule-txt { font-size: 13px; font-family: Arial, sans-serif; color: #bbb; line-height: 1.6; }
+        .avoid-card { border-color: #1a1010; background: #0d0b0b; }
+        .avoid-x { color: #6a2a2a; font-size: 11px; width: 16px; flex-shrink: 0; padding-top: 2px; }
+        .qw-card { background: #c9a96e; padding: 22px; margin-bottom: 28px; }
+        .qw-label { font-size: 10px; letter-spacing: 0.2em; color: #0a0a0a; font-family: Arial, sans-serif; margin-bottom: 8px; font-weight: 700; }
+        .qw-txt { font-size: 14px; color: #0a0a0a; font-family: Arial, sans-serif; line-height: 1.6; }
       `}</style>
     </>
   );
