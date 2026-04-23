@@ -16,30 +16,10 @@ const skinTones = [
 ];
 
 const seasons = [
-  {
-    id: 'spring',
-    name: 'Spring',
-    vibe: 'Fresh · Light fabrics · Warm optimism',
-    accent: '#C17A3C',
-  },
-  {
-    id: 'summer',
-    name: 'Summer',
-    vibe: 'Vibrant · Breathable · Bold warm energy',
-    accent: '#E8622A',
-  },
-  {
-    id: 'autumn',
-    name: 'Autumn',
-    vibe: 'Rich textures · Layered · Warm depth',
-    accent: '#8B4513',
-  },
-  {
-    id: 'winter',
-    name: 'Winter',
-    vibe: 'Deep tones · Heavy fabrics · High contrast',
-    accent: '#1A3A5C',
-  },
+  { id: 'spring', name: 'Spring', vibe: 'Fresh · Light fabrics · Warm optimism', accent: '#C17A3C' },
+  { id: 'summer', name: 'Summer', vibe: 'Vibrant · Breathable · Bold warm energy', accent: '#E8622A' },
+  { id: 'autumn', name: 'Autumn', vibe: 'Rich textures · Layered · Warm depth', accent: '#8B4513' },
+  { id: 'winter', name: 'Winter', vibe: 'Deep tones · Heavy fabrics · High contrast', accent: '#1A3A5C' },
 ];
 
 const steps = [
@@ -99,6 +79,24 @@ const ASOS = 'https://www.asos.com/search/?q=';
 
 const logoCSS = `.fc-ring-pulse { fill: none; stroke: #C9A84C; stroke-width: 1; opacity: 0; animation: fcPulse 2.5s ease 2.5s infinite; } .fc-ring { fill: none; stroke: #C9A84C; stroke-width: 2.5; stroke-dasharray: 502; stroke-dashoffset: 502; animation: fcDraw 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.2s forwards; } .fc-letter-f { fill: #C9A84C; font-family: Georgia, serif; font-size: 52px; text-anchor: middle; dominant-baseline: central; opacity: 0; animation: fcFadeF 0.5s ease 1.3s forwards; } .fc-letter-c { fill: #C9A84C; font-family: Georgia, serif; font-size: 52px; text-anchor: middle; dominant-baseline: central; opacity: 0; animation: fcFadeC 0.5s ease 1.9s forwards; } @keyframes fcDraw { to { stroke-dashoffset: 0; } } @keyframes fcFadeF { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } } @keyframes fcFadeC { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } } @keyframes fcPulse { 0% { opacity: 0; } 30% { opacity: 0.25; } 100% { opacity: 0; } }`;
 
+// ─── DETECT IN-APP BROWSER ──────────────────────────────────────────────────
+const isInAppBrowser = () => {
+  if (typeof window === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  return (
+    ua.includes('Instagram') ||
+    ua.includes('FBAN') ||
+    ua.includes('FBAV') ||
+    ua.includes('TikTok') ||
+    ua.includes('musical_ly') ||
+    ua.includes('BytedanceWebview') ||
+    ua.includes('LinkedIn') ||
+    ua.includes('Snapchat') ||
+    ua.includes('Twitter') ||
+    ua.includes('Pinterest')
+  );
+};
+
 export default function Home() {
   const [step, setStep] = useState(-1);
   const [answers, setAnswers] = useState({});
@@ -109,6 +107,7 @@ export default function Home() {
   const [isIOS, setIsIOS] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [loadingMessage, setLoadingMessage] = useState(0);
+  const [inAppBrowser, setInAppBrowser] = useState(false);
 
   const loadingMessages = [
     { main: 'Analyzing your profile…', sub: 'Reading your skin tone and season' },
@@ -121,6 +120,8 @@ export default function Home() {
     const ios = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
     const isStandalone = window.navigator.standalone;
     setIsIOS(ios);
+    setInAppBrowser(isInAppBrowser());
+
     if (ios && !isStandalone) setTimeout(() => setShowBanner(true), 3000);
     const handleBeforeInstall = (e) => {
       e.preventDefault();
@@ -163,31 +164,44 @@ export default function Home() {
   const generate = async (a) => {
     setLoading(true);
     setError(null);
+
+    const useStream = !inAppBrowser;
+
     try {
       const res = await fetch('/api/style', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(a),
+        body: JSON.stringify({ ...a, useStream }),
       });
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            try {
-              const parsed = JSON.parse(line.slice(6));
-              if (parsed.type === 'complete') {
-                setStyleResult(parsed.result);
-                setLoading(false);
-              } else if (parsed.type === 'error') {
-                throw new Error(parsed.error);
+
+      if (!useStream) {
+        // ── Non-streaming path for in-app browsers ──────────────────────────
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        setStyleResult(data);
+        setLoading(false);
+      } else {
+        // ── Streaming path for normal browsers ──────────────────────────────
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const parsed = JSON.parse(line.slice(6));
+                if (parsed.type === 'complete') {
+                  setStyleResult(parsed.result);
+                  setLoading(false);
+                } else if (parsed.type === 'error') {
+                  throw new Error(parsed.error);
+                }
+              } catch (e) {
+                if (e.message !== 'Unexpected end of JSON input') throw e;
               }
-            } catch (e) {
-              if (e.message !== 'Unexpected end of JSON input') throw e;
             }
           }
         }
