@@ -88,21 +88,45 @@ const logoCSS = `
   @keyframes fcPulse { 0% { opacity: 0; } 30% { opacity: 0.25; } 100% { opacity: 0; } }
 `;
 
-// ─── DETECT IN-APP BROWSER ──────────────────────────────────────────────────
+// ─── COMPREHENSIVE IN-APP BROWSER DETECTION ─────────────────────────────────
+// Covers all major social and messaging app browsers
 const isInAppBrowser = () => {
   if (typeof window === 'undefined') return false;
   const ua = navigator.userAgent || '';
   return (
+    // Instagram
     ua.includes('Instagram') ||
+    // Facebook
     ua.includes('FBAN') ||
     ua.includes('FBAV') ||
+    ua.includes('FB_IAB') ||
+    ua.includes('FBIOS') ||
+    ua.includes('FBSS') ||
+    // TikTok
     ua.includes('TikTok') ||
     ua.includes('musical_ly') ||
     ua.includes('BytedanceWebview') ||
-    ua.includes('LinkedIn') ||
+    ua.includes('ByteLocale') ||
+    // WhatsApp
+    ua.includes('WhatsApp') ||
+    // Snapchat
     ua.includes('Snapchat') ||
+    // Twitter / X
     ua.includes('Twitter') ||
-    ua.includes('Pinterest')
+    // LinkedIn
+    ua.includes('LinkedIn') ||
+    // Pinterest
+    ua.includes('Pinterest') ||
+    // Telegram
+    ua.includes('Telegram') ||
+    // Line
+    ua.includes('Line/') ||
+    // WeChat
+    ua.includes('MicroMessenger') ||
+    // Generic Android WebView
+    ua.includes('; wv)') ||
+    // Generic iOS WebView (no Safari in string)
+    (ua.includes('iPhone') && !ua.includes('Safari') && ua.includes('AppleWebKit'))
   );
 };
 
@@ -265,8 +289,6 @@ export default function Home() {
         {step === -1 && (
           <div className="center">
             <style>{logoCSS}</style>
-
-            {/* FC Logo on landing page */}
             <div className="hero-logo">
               <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="72" height="72" overflow="visible">
                 <circle className="fc-ring-pulse" cx="100" cy="100" r="80" />
@@ -275,15 +297,9 @@ export default function Home() {
                 <text className="fc-letter-c" x="118" y="102">C</text>
               </svg>
             </div>
-
             <div className="badge hero-fade-1">YOUR STYLE ADVISOR</div>
-            <h1 className="hero hero-fade-2">
-              Your Style,<br />
-              <span className="accent">Decoded.</span>
-            </h1>
-            <p className="sub hero-fade-3">
-              Answer 7 questions. Get a personalized style profile with outfits you can shop right now.
-            </p>
+            <h1 className="hero hero-fade-2">Your Style,<br /><span className="accent">Decoded.</span></h1>
+            <p className="sub hero-fade-3">Answer 7 questions. Get a personalized style profile with outfits you can shop right now.</p>
             <button className="cta hero-fade-4" onClick={() => setStep(0)}>Get My Style Profile →</button>
             <p className="free hero-fade-5">Free · No sign-up · 60 seconds</p>
           </div>
@@ -433,21 +449,16 @@ export default function Home() {
       <style jsx global>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #0a0a0a; color: #f0ede8; font-family: Georgia, serif; }
-
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes spin { to { transform: rotate(360deg); } }
-
         .fade { animation: fadeIn 0.4s ease forwards; }
-
-        /* Hero page sequential reveal */
         .hero-logo { display: flex; justify-content: center; margin-bottom: 32px; }
         .hero-fade-1 { opacity: 0; animation: fadeUp 0.6s ease 2.2s forwards; }
         .hero-fade-2 { opacity: 0; animation: fadeUp 0.6s ease 2.4s forwards; }
         .hero-fade-3 { opacity: 0; animation: fadeUp 0.6s ease 2.6s forwards; }
         .hero-fade-4 { opacity: 0; animation: fadeUp 0.6s ease 2.7s forwards; }
         .hero-fade-5 { opacity: 0; animation: fadeUp 0.6s ease 2.9s forwards; }
-
         .install-banner { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; border-top: 1px solid #c9a96e; padding: 14px 16px; z-index: 1000; }
         .install-content { display: flex; align-items: center; gap: 12px; max-width: 560px; margin: 0 auto; }
         .logo-wrap-banner { flex-shrink: 0; width: 40px; height: 40px; }
@@ -456,12 +467,10 @@ export default function Home() {
         .install-text span { color: #888; font-size: 11px; }
         .install-btn { background: #c9a96e; color: #0a0a0a; border: none; padding: 8px 16px; font-size: 12px; font-family: Arial, sans-serif; cursor: pointer; font-weight: 700; flex-shrink: 0; }
         .install-close { background: transparent; border: none; color: #555; font-size: 16px; cursor: pointer; flex-shrink: 0; padding: 4px; }
-
         .root { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; padding-bottom: 80px; }
         .center { max-width: 480px; width: 100%; text-align: center; padding: 40px 0; }
         .wrap { max-width: 500px; width: 100%; }
         .results { max-width: 560px; width: 100%; padding-bottom: 60px; }
-
         .badge { display: inline-block; font-size: 10px; letter-spacing: 0.25em; color: #c9a96e; border: 1px solid #c9a96e; padding: 4px 12px; margin-bottom: 24px; font-family: Arial, sans-serif; }
         .hero { font-size: clamp(40px, 10vw, 68px); font-weight: 400; line-height: 1.05; margin-bottom: 20px; letter-spacing: -0.02em; }
         .accent { color: #c9a96e; font-style: italic; }
@@ -470,23 +479,19 @@ export default function Home() {
         .cta:hover { opacity: 0.85; }
         .cta.full { width: 100%; padding: 18px; font-size: 12px; letter-spacing: 0.15em; }
         .free { margin-top: 14px; font-size: 11px; color: #444; font-family: Arial, sans-serif; letter-spacing: 0.05em; }
-
         .progress { width: 100%; height: 2px; background: #1e1e1e; margin-bottom: 28px; }
         .fill { height: 100%; background: #c9a96e; transition: width 0.3s ease; }
         .step-count { font-size: 11px; letter-spacing: 0.2em; color: #444; font-family: Arial, sans-serif; margin-bottom: 14px; }
         .question { font-size: clamp(20px, 5vw, 28px); font-weight: 400; margin-bottom: 28px; line-height: 1.3; }
-
         .options { display: flex; flex-direction: column; gap: 10px; }
         .option { background: transparent; border: 1px solid #222; color: #f0ede8; padding: 15px 18px; text-align: left; font-size: 14px; cursor: pointer; font-family: Arial, sans-serif; transition: all 0.2s; }
         .option:hover { border-color: #c9a96e; color: #c9a96e; }
-
         .skin-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 8px; }
         .skin-btn { background: transparent; border: 1px solid #222; padding: 10px 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: all 0.2s; }
         .skin-btn:hover { border-color: #c9a96e; }
         .skin-swatch { width: 36px; height: 36px; border-radius: 50%; }
         .skin-name { font-size: 10px; color: #f0ede8; font-family: Arial, sans-serif; text-align: center; }
         .skin-desc { font-size: 9px; color: #666; font-family: Arial, sans-serif; text-align: center; }
-
         .season-grid { display: flex; flex-direction: column; gap: 10px; }
         .season-btn { background: transparent; border: 1px solid #222; padding: 16px 18px; cursor: pointer; display: flex; align-items: center; gap: 16px; transition: all 0.2s; text-align: left; }
         .season-btn:hover { border-color: #c9a96e; }
@@ -494,17 +499,13 @@ export default function Home() {
         .season-text { display: flex; flex-direction: column; gap: 4px; }
         .season-name { font-size: 16px; color: #f0ede8; font-family: Georgia, serif; font-weight: 400; }
         .season-vibe { font-size: 11px; color: #666; font-family: Arial, sans-serif; letter-spacing: 0.03em; }
-
         .back { background: transparent; border: none; color: #444; font-size: 12px; cursor: pointer; margin-top: 20px; font-family: Arial, sans-serif; letter-spacing: 0.05em; display: block; }
-
         .spinner { width: 36px; height: 36px; border: 2px solid #1e1e1e; border-top: 2px solid #c9a96e; border-radius: 50%; margin: 0 auto 20px; animation: spin 0.8s linear infinite; }
         .loading-text { font-size: 17px; font-style: italic; margin-bottom: 8px; }
         .loading-sub { font-size: 12px; color: #555; font-family: Arial, sans-serif; letter-spacing: 0.05em; }
         .error { color: #e07070; font-family: Arial, sans-serif; font-size: 13px; margin-bottom: 20px; line-height: 1.6; }
-
         .res-header { text-align: center; margin-bottom: 36px; }
         .persona { font-size: clamp(26px, 6vw, 44px); font-weight: 400; font-style: italic; color: #c9a96e; margin-top: 14px; }
-
         .card { border: 1px solid #1e1e1e; padding: 22px; margin-bottom: 14px; background: #0f0f0f; }
         .card-title { font-size: 10px; letter-spacing: 0.2em; color: #c9a96e; font-family: Arial, sans-serif; margin-bottom: 14px; font-weight: 400; }
         .palette { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
@@ -512,12 +513,10 @@ export default function Home() {
         .swatch { width: 40px; height: 40px; }
         .color-label { font-size: 10px; color: #555; font-family: Arial, sans-serif; }
         .color-desc { font-size: 13px; color: #777; font-family: Arial, sans-serif; line-height: 1.6; }
-
         .sec-title { font-size: 10px; letter-spacing: 0.2em; color: #444; font-family: Arial, sans-serif; margin-bottom: 10px; font-weight: 400; margin-top: 6px; }
         .outfit-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
         .occasion { font-size: 10px; letter-spacing: 0.2em; color: #c9a96e; font-family: Arial, sans-serif; }
         .outfit-name { font-size: 15px; font-style: italic; }
-
         .piece { border-top: 1px solid #1a1a1a; padding-top: 12px; margin-top: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
         .piece-info { flex: 1; min-width: 130px; }
         .piece-item { font-size: 14px; font-family: Arial, sans-serif; display: block; margin-bottom: 3px; }
@@ -525,17 +524,14 @@ export default function Home() {
         .shop-row { display: flex; gap: 6px; }
         .shop-a { background: #c9a96e; color: #0a0a0a; padding: 5px 10px; font-size: 10px; font-family: Arial, sans-serif; text-decoration: none; font-weight: 700; letter-spacing: 0.05em; }
         .shop-b { border: 1px solid #c9a96e; color: #c9a96e; padding: 5px 10px; font-size: 10px; font-family: Arial, sans-serif; text-decoration: none; letter-spacing: 0.05em; }
-
         .rule-row { display: flex; gap: 10px; margin-bottom: 9px; align-items: flex-start; }
         .rule-num { color: #c9a96e; font-size: 12px; font-style: italic; width: 16px; flex-shrink: 0; }
         .rule-txt { font-size: 13px; font-family: Arial, sans-serif; color: #bbb; line-height: 1.6; }
         .avoid-card { border-color: #1a1010; background: #0d0b0b; }
         .avoid-x { color: #6a2a2a; font-size: 11px; width: 16px; flex-shrink: 0; padding-top: 2px; }
-
         .qw-card { background: #c9a96e; padding: 22px; margin-bottom: 28px; }
         .qw-label { font-size: 10px; letter-spacing: 0.2em; color: #0a0a0a; font-family: Arial, sans-serif; margin-bottom: 8px; font-weight: 700; }
         .qw-txt { font-size: 14px; color: #0a0a0a; font-family: Arial, sans-serif; line-height: 1.6; }
-
         .footer { width: 100%; max-width: 560px; text-align: center; padding: 24px 0 40px; border-top: 1px solid #1a1a1a; margin-top: 20px; }
         .footer-copy { font-size: 11px; color: #333; font-family: Arial, sans-serif; margin-bottom: 6px; }
         .footer-links { display: flex; align-items: center; justify-content: center; gap: 8px; }
