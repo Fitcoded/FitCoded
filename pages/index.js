@@ -527,9 +527,9 @@ export default function Home() {
         .piece-info { flex: 1; min-width: 130px; }
         .piece-item { font-size: 14px; font-family: Arial, sans-serif; display: block; margin-bottom: 3px; }
         .piece-tip { font-size: 11px; color: #555; font-family: Arial, sans-serif; line-height: 1.5; display: block; }
-        .shop-row { display: flex; gap: 6px; flex-wrap: wrap; }
-        .shop-a { background: #c9a96e; color: #0a0a0a; padding: 5px 10px; font-size: 10px; font-family: Arial, sans-serif; text-decoration: none; font-weight: 700; letter-spacing: 0.05em; }
-        .shop-b { border: 1px solid #c9a96e; color: #c9a96e; padding: 5px 10px; font-size: 10px; font-family: Arial, sans-serif; text-decoration: none; letter-spacing: 0.05em; }
+        .shop-row { display: flex; gap: 4px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
+        .shop-a { background: #c9a96e; color: #0a0a0a; padding: 5px 7px; font-size: 9px; font-family: Arial, sans-serif; text-decoration: none; font-weight: 700; letter-spacing: 0.03em; white-space: nowrap; flex-shrink: 0; }
+        .shop-b { border: 1px solid #c9a96e; color: #c9a96e; padding: 5px 7px; font-size: 9px; font-family: Arial, sans-serif; text-decoration: none; letter-spacing: 0.03em; white-space: nowrap; flex-shrink: 0; }
         .rule-row { display: flex; gap: 10px; margin-bottom: 9px; align-items: flex-start; }
         .rule-num { color: #c9a96e; font-size: 12px; font-style: italic; width: 16px; flex-shrink: 0; }
         .rule-txt { font-size: 13px; font-family: Arial, sans-serif; color: #bbb; line-height: 1.6; }
