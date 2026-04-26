@@ -76,6 +76,9 @@ const steps = [
 
 const AMAZON = 'https://www.amazon.com/s?tag=fitcoded-20&k=';
 const ASOS = 'https://www.asos.com/search/?q=';
+const HM = 'https://www2.hm.com/en_us/search-results.html?q=';
+const SHEIN = 'https://www.shein.com/search?q=';
+const FASHIONNOVA = 'https://www.fashionnova.com/search?q=';
 
 const logoCSS = `
   .fc-ring-pulse { fill: none; stroke: #C9A84C; stroke-width: 1; opacity: 0; animation: fcPulse 2.5s ease 2.5s infinite; }
@@ -400,6 +403,9 @@ export default function Home() {
                     <div className="shop-row">
                       <a href={AMAZON + encodeURIComponent(p.search)} target="_blank" rel="noopener noreferrer" className="shop-a">Amazon</a>
                       <a href={ASOS + encodeURIComponent(p.search)} target="_blank" rel="noopener noreferrer" className="shop-b">ASOS</a>
+                      <a href={HM + encodeURIComponent(p.search)} target="_blank" rel="noopener noreferrer" className="shop-b">H&amp;M</a>
+                      <a href={SHEIN + encodeURIComponent(p.search)} target="_blank" rel="noopener noreferrer" className="shop-b">Shein</a>
+                      <a href={FASHIONNOVA + encodeURIComponent(p.search)} target="_blank" rel="noopener noreferrer" className="shop-b">Fashion Nova</a>
                     </div>
                   </div>
                 ))}
@@ -521,7 +527,7 @@ export default function Home() {
         .piece-info { flex: 1; min-width: 130px; }
         .piece-item { font-size: 14px; font-family: Arial, sans-serif; display: block; margin-bottom: 3px; }
         .piece-tip { font-size: 11px; color: #555; font-family: Arial, sans-serif; line-height: 1.5; display: block; }
-        .shop-row { display: flex; gap: 6px; }
+        .shop-row { display: flex; gap: 6px; flex-wrap: wrap; }
         .shop-a { background: #c9a96e; color: #0a0a0a; padding: 5px 10px; font-size: 10px; font-family: Arial, sans-serif; text-decoration: none; font-weight: 700; letter-spacing: 0.05em; }
         .shop-b { border: 1px solid #c9a96e; color: #c9a96e; padding: 5px 10px; font-size: 10px; font-family: Arial, sans-serif; text-decoration: none; letter-spacing: 0.05em; }
         .rule-row { display: flex; gap: 10px; margin-bottom: 9px; align-items: flex-start; }
