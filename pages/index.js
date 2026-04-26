@@ -77,8 +77,8 @@ const steps = [
 const AMAZON = 'https://www.amazon.com/s?tag=fitcoded-20&k=';
 const ASOS = 'https://www.asos.com/search/?q=';
 const HM = 'https://www2.hm.com/en_us/search-results.html?q=';
-const SHEIN = 'https://www.shein.com/search?q=';
-const FASHIONNOVA = 'https://www.fashionnova.com/search?q=';
+const SHEIN = 'https://us.shein.com/pdsearch/';
+const FASHIONNOVA = 'https://www.fashionnova.com/search?type=product&q=';
 
 const logoCSS = `
   .fc-ring-pulse { fill: none; stroke: #C9A84C; stroke-width: 1; opacity: 0; animation: fcPulse 2.5s ease 2.5s infinite; }
@@ -404,7 +404,7 @@ export default function Home() {
                       <a href={AMAZON + encodeURIComponent(p.search)} target="_blank" rel="noopener noreferrer" className="shop-a">Amazon</a>
                       <a href={ASOS + encodeURIComponent(p.search)} target="_blank" rel="noopener noreferrer" className="shop-b">ASOS</a>
                       <a href={HM + encodeURIComponent(p.search)} target="_blank" rel="noopener noreferrer" className="shop-b">H&amp;M</a>
-                      <a href={SHEIN + encodeURIComponent(p.search)} target="_blank" rel="noopener noreferrer" className="shop-b">Shein</a>
+                      <a href={`https://us.shein.com/pdsearch/${encodeURIComponent(p.search)}/`} target="_blank" rel="noopener noreferrer" className="shop-b">Shein</a>
                       <a href={FASHIONNOVA + encodeURIComponent(p.search)} target="_blank" rel="noopener noreferrer" className="shop-b">Fashion Nova</a>
                     </div>
                   </div>
