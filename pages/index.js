@@ -77,7 +77,7 @@ const steps = [
 const AMAZON = 'https://www.amazon.com/s?tag=fitcoded-20&k=';
 const ASOS = 'https://www.asos.com/search/?q=';
 const HM = 'https://www2.hm.com/en_us/search-results.html?q=';
-const SHEIN = 'https://us.shein.com/pdsearch/';
+const SHEIN = 'https://us.shein.com/pdsearch/?ici=1347-affid-4689048668&';
 const FASHIONNOVA = 'https://www.fashionnova.com/search?type=product&q=';
 
 const logoCSS = `
